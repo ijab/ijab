@@ -1,0 +1,216 @@
+/** Add css rules here for your application. */
+
+html, body {
+	background:#3d71b8 url(wallpapers/desktop.jpg) no-repeat left top;
+    font: normal 12px tahoma, arial, verdana, sans-serif;
+	margin: 0;
+	padding: 0;
+	border: 0 none;
+	overflow: hidden;
+	height: 100%;
+}
+
+button {
+  display: block;
+  font-size: 16pt
+}
+
+.widePanel {
+  width: 100%
+}
+
+img {
+  margin-top: 3px;
+}
+
+.icon-accordion {
+  background-image: url(images/icons/accordion.gif) !important;
+}
+
+.contact-icon-online
+{
+	background-image: url(images/icons/status-icon/contact-icon-online.gif) !important;
+}
+
+.contact-icon-away
+{
+	background-image: url(images/icons/status-icon/contact-icon-away.gif) !important;
+}
+
+.contact-icon-busy
+{
+	background-image: url(images/icons/status-icon/contact-icon-busy.gif) !important;
+}
+
+.contact-icon-offline
+{
+	background-image: url(images/icons/status-icon/contact-icon-offline.gif) !important;
+}
+
+.contact-group-icon 
+{
+	background-image:url(js/ext/resources/images/default/tree/folder-open.gif);
+	display:none;
+}
+
+.search-toolbar
+{
+	background:transparent !important;
+	background-image:none !important;
+	border:0px 0px 0px 0px !important;
+}
+
+.search-toolbar table
+{
+	width:100%;
+}
+
+
+.about-pic-bar
+{
+	background:transparent !important;
+	background-image:none !important;
+	border:0px 0px 0px 0px !important;
+	margins:0px !important;
+}
+
+.chat-icon
+{
+	background-image: url(images/chat.gif) !important;
+}
+
+.login-logo
+{
+	margin:5px; 
+	float:right;
+}
+
+.status_label
+{
+	background-color:transparent;
+	color:gray;
+	cursor:pointer;
+}	
+
+.indicator
+{
+	width: 100%;	
+	margin-bottom: 5px;
+}
+
+.indicator-links
+{
+	padding: 2px 13px 2px 0px;
+	background: #C3D9FF;	
+}
+
+.indicator-title {
+  padding: 0px 0px 0px 0px;
+}
+
+.Status-Menu-Button
+{
+}
+
+.Status-Menu-Button .x-btn-right 
+{
+	background: transparent none;
+	height: 0px;
+	width:0px;
+}
+
+.Status-Menu-Button .x-btn-left 
+{
+	background: transparent none;
+	height: 0px;
+	width:0px;
+}
+
+.Status-Menu-Button .x-btn-center {
+	background: transparent none; 
+}
+
+.message_view
+{
+	padding:5px !important;
+	border:0px !important;
+	border-top:0px solid #ffffff !important;
+	border-left:0px solid #ffffff !important;
+	border-right:0px solid #ffffff !important;
+	border-bottom:0px solid #ffffff !important;
+	background:#FFFFFF none repeat scroll 0% 0% !important;
+}
+
+.message_view .x-panel-body
+{
+	border-style:none none none none;
+	overflow:auto;
+	padding:4px 12px 4px 4px;
+}
+
+.emoticon_menu
+{
+	background-color:#FFFFFF !important;
+}
+
+.emoticon_button
+{
+	background-image: url(images/smiley.gif) !important;
+}
+
+.emoticon_button .x-btn-right 
+{
+	background: transparent none;
+	height: 0px;
+	width:0px;
+}
+
+.emoticon_button .x-btn-left 
+{
+	background: transparent none;
+	height: 0px;
+	width:0px;
+}
+
+.emoticon_button .x-btn-center {
+	background: transparent none; 
+}
+
+
+.selected-article 
+{
+	background:#ECF5FE url(images/post-bg.gif) repeat-x scroll 0% 0%;
+	border:1px solid #C3DAF9;
+	font-family:Trebuchet MS;
+	font-size:12px;
+	margin-bottom:4px;
+	overflow:inherit;
+	padding:2px;
+	width:100%;
+	min-height:50px;
+}
+
+.msg-nick 
+{
+	font-family:Trebuchet MS;
+	font-size:12px;
+}
+
+.msg_header
+{
+	border-bottom:1px solid black !important;
+}
+
+.roster_list
+{
+}
+
+.roster_list .x-panel-body
+{
+	border:0px none !important;
+}
+
+.roster_list .x-grid3-row 
+{
+	border-right:0px none !important;
+}
