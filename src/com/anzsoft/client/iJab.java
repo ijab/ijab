@@ -142,21 +142,6 @@ public class iJab implements EntryPoint
   
   private native void defineBridgeMethod()
   /*-{
-   	$wnd.talkTo = function(jid)
-   	{
-   		return @com.anzsoft.client.iJab::talkTo(Ljava/lang/String;)(jid);
-   	}
-   	
-   	$wnd.loginUser = function(user,password,silent)
-   	{
-   		return @com.anzsoft.client.iJab::loginUser(Ljava/lang/String;Ljava/lang/String;Z)(user,password,silent);
-   	}
-   	
-   	$wnd.loginAnonymouse = function(silent)
-   	{
-   		return @com.anzsoft.client.iJab::loginAnonymouse(Z)(silent);
-   	}
-   	
    	$wnd.logoutJabber = function()
    	{
    		return @com.anzsoft.client.iJab::logout();
@@ -167,9 +152,5 @@ public class iJab implements EntryPoint
    		return @com.anzsoft.client.iJab::login()();
    	}
    	
-   	$wnd.loginAndTalkTo = function(user,password,target)
-   	{
-   		return @com.anzsoft.client.iJab::talkTo(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(user,password,target);
-   	}
   }-*/;
 }
