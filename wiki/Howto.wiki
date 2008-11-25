@@ -1,5 +1,5 @@
 #labels howto,custom,web,jabber,http-bind,webim,install
-#A quickstart for configuring iJab in your own web site
+# A quickstart for configuring iJab in your own web site
 
 = Introduction =
 
@@ -10,12 +10,18 @@ To use this, you should have a http-bind supported jabber server and rewrite sup
 
 You need to do something in your html page:
   # Declare the locale to decide which language you want to use.(We only support zh and en for now)
-     * <meta name="gwt:property" content="locale=zh"> or <meta name="gwt:property" content="locale=en">
+     {{{
+      <meta name="gwt:property" content="locale=zh"> 
+      or 
+     <meta name="gwt:property" content="locale=en">
+     }}}
 
   # Include the script in your head section.
-     * <script type="text/javascript" language="javascript" src="com.anzsoft.iJab.nocache.js"></script>
-     * <script type="text/javascript" src="jsjac.js">
- 
+     {{{
+      <script type="text/javascript" language="javascript" src="com.anzsoft.iJab.nocache.js"></script>
+     <script type="text/javascript" src="jsjac.js">
+     }}}
+
   # Declare the variables about your xmpp server.
 	{{{
         var silent = true;// when silent is true, it will not show the contact list window on your web site.
@@ -65,4 +71,3 @@ There is a sample html file to show you how it work.
 
 
 iJab provide some function you can use within your web site, please see the API document.
-
