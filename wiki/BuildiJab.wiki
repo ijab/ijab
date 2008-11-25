@@ -3,7 +3,18 @@
 
 iJab is written by Javascript.
 
-Dependency:
-  * Extjs
+1.Dependency:
+  * Extjs & Ext GWT
   * GWT
-We have bundled those libs in iJab source.
+  * GWT voices
+  * JsJac
+
+2.Get source file
+  using svn to get iJab source files.
+  svn checkout http://ijab.googlecode.com/svn/trunk/ ijab-read-only
+
+3.Build iJab
+  
+  iJab provieds an Eclipse project file and using Eclipse to build this project.
+
+  Please visit [http://code.google.com/webtoolkit/ Google Web Toolkit] for more information.
