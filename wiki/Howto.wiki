@@ -9,23 +9,22 @@ To use this, you should have a http-bind supported jabber server and rewrite sup
 = How-to =
 
 You need to do something in your html page:
-  # Declare the locale to decide which language you want to use.(We only support zh and en for now)
+  * Declare the locale to decide which language you want to use.(We only support zh and en for now)
      {{{
       <meta name="gwt:property" content="locale=zh"> 
       or 
      <meta name="gwt:property" content="locale=en">
      }}}
 
-  # Include the script in your head section.
+  * Include the script in your head section.
      {{{
       <script type="text/javascript" language="javascript" src="com.anzsoft.iJab.nocache.js"></script>
      <script type="text/javascript" src="jsjac.js">
      }}}
 
-  # Declare the variables about your xmpp server.
+  * Declare the variables about your xmpp server.
 	{{{
-        var silent = true;// when silent is true, it will not show the contact list window on your web site.
-	var httpBind = "/http-bind/";
+        var httpBind = "/http-bind/";
 	var host = "samespace.anzsoft.com";
 	var port = 5222;
 	var domain = "anzsoft.com";
