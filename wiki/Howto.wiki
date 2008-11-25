@@ -53,7 +53,6 @@ There is a sample html file to show you how it work.
       <body style="overflow: hidden" onload=login()">
 
 	<script>
-	var silent = true;
 	var httpBind = "/http-bind/";
 	var host = "samespace.anzsoft.com";
 	var port = 5222;
