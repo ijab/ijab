@@ -67,5 +67,30 @@ There is a sample html file to show you how it work.
 </html>
 }}}
 
+ * Notice:
+  using body onload event would not work under IE, you could try this:
+  {{{
+   function login()
+    {
+    	
+    	doJabberLogin();
+    }
+    function wait_for_script_load(look_for, callback) {
+          var interval = setInterval(function() {
+          if (eval("typeof " + look_for) != 'undefined') {
+            clearInterval(interval);
+            callback();
+          }
+        }, 50);
+    }
+    function onloadInit()
+    {
+        wait_for_script_load( 'doJabberLogin', login );
+    } 
+    </script>
+  </head>
+
+  <body style="overflow: hidden" onload="onloadInit()">
+  }}}
 
 iJab provide some function you can use within your web site, please see the API document.
