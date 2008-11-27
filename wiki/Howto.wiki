@@ -95,4 +95,4 @@ There is a sample html file to show you how it work.
 
 iJab provide some function you can use within your web site, please see the API document.
 
-Any quesionts: contact [zhancaibao at gmail.com me] or [zhongfanglin at gmail.com zhongfanglin]
+Any quesionts: contact by me by zhancaibaoATgmail.com or zhongfanglin by zhongfanglin ATgmail.com
