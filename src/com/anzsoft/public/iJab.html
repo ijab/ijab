@@ -25,15 +25,32 @@
     <script type="text/javascript" src="dev/JSJaC.js"></script>
     <!-- <script type="text/javascript" src="Debugger.js"></script> -->
     <script>
-    function loginImdev()
-    {
-    	doJabberLogin();
-    } 
+	var silent = true;
+	var httpBind = "/http-bind/";
+	var host = "samespace.anzsoft.com";
+	var port = 5222;
+	var domain = "anzsoft.com";
+	var authType = "sasl";<!-- sasl,nosasl-->
+    </script>
     
-    function talktozhongfanglin()
+    <script>
+    function login()
     {
-    	talkTo("zhongfanglin@anzsoft.com");
+    	
+    	doJabberLogin();
     }
+    function wait_for_script_load(look_for, callback) {
+          var interval = setInterval(function() {
+          if (eval("typeof " + look_for) != 'undefined') {
+            clearInterval(interval);
+            callback();
+          }
+        }, 50);
+    }
+    function onloadInit()
+    {
+        wait_for_script_load( 'doJabberLogin', login );
+    } 
     </script>
   </head>
 
@@ -42,21 +59,9 @@
   <!-- you can leave the body empty if you want  -->
   <!-- to create a completely dynamic UI.        -->
   <!--                                           -->
-  <body style="overflow: hidden">
-
-	<script>
-	var silent = true;
-	var httpBind = "/http-bind/";
-	var host = "samespace.anzsoft.com";
-	var port = 5222;
-	var domain = "anzsoft.com";
-	var authType = "sasl";<!-- sasl,nosasl-->
-
-	</script>
+  <body style="overflow: hidden" onload = "onloadInit()">
     <!-- OPTIONAL: include this if you want history support -->
     <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0">
     </iframe>
-    <input type="button" value="Login user imdev" onclick="loginImdev();">
-    <input type="button" value="Talk to zhongfanglin" onclick="talktozhongfanglin();"> 
    </body>
 </html>
