@@ -52,4 +52,6 @@ public interface iJabConstants extends Constants
 	String user_or_pwd_error();
 	String leavePrompt();
 	String visitor();
+	String moreoptions();
+	String securelink_prompt();
 }

@@ -72,13 +72,13 @@ public class JabberApp
 	//private boolean serviceMode = false;
 	private String httpBind = "/http-bind/";
 	private String host = "samespace.anzsoft.com";
-	int port = 5222;
+	private int port = 5222;
 	private String domain = "anzsoft.com";
 	private String authType = "sasl";
 	
 	private Window debugWindow =  null;
 	private DebugPanel debugPanel = null;
-	final boolean Debug = false;
+	final boolean Debug = true;
 	
 	private LoginDialog loginDlg = new LoginDialog();
 	
@@ -161,7 +161,11 @@ public class JabberApp
 		if(eventAdapter != null)
 			connection.addEventListener(eventAdapter);
 		session = new XmppSession(connection, true);
-		XmppUserSettings userSetting = new XmppUserSettings(host,port,domain, user, pass, XmppUserSettings.SASL);
+		XmppUserSettings userSetting;
+		if(sasl)
+			userSetting = new XmppUserSettings(host,port,domain, user, pass, XmppUserSettings.SASL);
+		else
+			userSetting = new XmppUserSettings(host,port,domain, user, pass, XmppUserSettings.NON_SASL);
 		session.login(userSetting);
 		session.getUser().getRoster().addRosterListener(createRosterListener());
 	}

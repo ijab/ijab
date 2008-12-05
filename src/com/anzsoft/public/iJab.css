@@ -214,3 +214,8 @@ img {
 {
 	border-right:0px none !important;
 }
+
+.loginDialog-Icon
+{
+	background-image: url(images/icon_padlock.png) !important;
+}
