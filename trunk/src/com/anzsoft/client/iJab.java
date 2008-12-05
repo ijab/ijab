@@ -39,6 +39,7 @@ public class iJab implements EntryPoint
   public void onModuleLoad()
   { 
 	  defineBridgeMethod();
+	  
 	  /*
 	  if(!silent)
 	  {
