@@ -3,4 +3,4 @@
 
    iJab is under heavey developing to support other features.Maybe we would relased a version 0.1.5 or 0.2.0 that support roster managements and some bug fix recently.After that we would focus on MUC and new user registration and tab-style chat window features.
 
-Thanks all the people interesting with iJab.We need any advice from you.
+Thanks all the people interesting with iJab and any advice is appreciated.
