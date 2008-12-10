@@ -54,4 +54,10 @@ public interface iJabConstants extends Constants
 	String visitor();
 	String moreoptions();
 	String securelink_prompt();
+	String auth_requst();
+	String addUser();
+	String add();
+	String close();
+	String invite();
+	String search();
 }

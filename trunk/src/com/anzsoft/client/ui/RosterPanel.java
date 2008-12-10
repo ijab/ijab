@@ -32,10 +32,12 @@ import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
@@ -53,6 +55,10 @@ import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Image;
 
@@ -99,9 +105,17 @@ public class RosterPanel extends ContentPanel
     public static final String STATUSTEXT = "statustext";
     public static final String STATUSVALUE = "statusvalue";
     
+    private int currentItem = -1;
+    
     private GroupingStore<ContactData>  store;
     private Grid<ContactData> grid;
     //private StoreFilterField<ContactData> filterField;
+    
+    private MenuItem chatItem;
+    private MenuItem infoItem;
+    private MenuItem requestAuth;
+    private MenuItem deleteItem;
+    private CheckMenuItem onlineOnly;
        
     public RosterPanel(final String emptyText)
     {
@@ -126,7 +140,46 @@ public class RosterPanel extends ContentPanel
     	doLayoutIfNeeded();
     }
     
-    public void addContact(XmppContact contact)
+    public void pushRosterIncoming(final Map<String,XmppContact> contacts)
+    {
+    	for(String jid:contacts.keySet())
+    	{
+    		XmppContact contact = contacts.get(jid);
+    		if(contact.getSubscription() == XmppContact.Subscription.remove)
+    		{
+    			removeContact(contact);
+    		}
+    		else
+    		{
+    			ContactData data = getContactData(contact.getJID().toString());
+    			if(data != null)
+    			{
+    				final String statusFormated = formatStatus(contact.getStatus());
+    				data.set(STATUSTEXT, statusFormated);
+    				data.set(STATUSIMG, formatStatusIcon(contact.getStatus()));
+    				data.set(STATUSVALUE, contact.getStatus().type().ordinal());
+    				if(!contact.getGroups().isEmpty()&&!contact.getGroups().get(0).isEmpty())
+    				data.set(USER_GROUP_DD, contact.getGroups().get(0));
+    		    	store.update(data);
+    		    	sort();
+    			}
+    			else
+    			{
+    				addContact(contact);
+    			}
+    		}
+    		
+    	}
+    }
+    
+    private void removeContact(final XmppContact contact)
+    {
+    	ContactData data = getContactData(contact.getJID().toString());
+    	if(data != null)
+    	store.remove(data);
+    }
+    
+    public void addContact(final XmppContact contact)
     {
     	final String statusIcon = formatStatusIcon(contact.getStatus());
     	addRecord(contact,statusIcon);
@@ -342,6 +395,7 @@ public class RosterPanel extends ContentPanel
     		
     	
     	Grid<ContactData> grid = new Grid<ContactData>(store,columnModel);
+    	grid.setContextMenu(createContextMenu());
     	grid.setWidth("100%");
     	grid.setHeight("100%");
     	grid.setView(view);
@@ -349,7 +403,7 @@ public class RosterPanel extends ContentPanel
     	grid.setBorders(false);
     	grid.setStyleName("roster_list");
     	grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-    	grid.addListener(Events.RowClick , new Listener<GridEvent>()
+    	grid.addListener(Events.RowDoubleClick , new Listener<GridEvent>()
     	{
 			public void handleEvent(GridEvent be) 
 			{
@@ -359,6 +413,15 @@ public class RosterPanel extends ContentPanel
 				ChatWindow.openChat(XmppID.parseId(jid));
 			}
 
+    	});
+    	
+    	grid.addListener(Events.ContextMenu, new Listener<GridEvent>()
+    	{
+			public void handleEvent(GridEvent be) 
+			{
+				currentItem = be.rowIndex;
+			}
+    		
     	});
 
     	super.add(grid);
@@ -402,6 +465,81 @@ public class RosterPanel extends ContentPanel
     		return icons.chat();
     	}
 		return icons.offline();
-
+    }
+    
+    private Menu createContextMenu()
+    {
+    	Menu menu = new Menu();
+    	chatItem = new MenuItem("Open Chat");
+    	chatItem.addListener(Events.Select, new Listener()
+    	{
+			public void handleEvent(BaseEvent be) 
+			{
+				List<ContactData> datas = store.getModels();
+				ContactData data = datas.get(currentItem);
+				if(data == null)
+					return;
+				String jid = data.get(JID);
+				ChatWindow.openChat(XmppID.parseId(jid));
+				
+			}
+    		
+    	});
+    	
+    	infoItem = new MenuItem("User Info");
+    	infoItem.addListener(Events.Select, new Listener()
+    	{
+			public void handleEvent(BaseEvent be) {
+				// TODO Auto-generated method stub
+				
+			}
+    		
+    	});
+    	
+    	requestAuth = new MenuItem("Rerequset authorization");
+    	requestAuth.addListener(Events.Select, new Listener()
+    	{
+			public void handleEvent(BaseEvent be) 
+			{
+				List<ContactData> datas = store.getModels();
+				ContactData data = datas.get(currentItem);
+				if(data == null)
+					return;
+				String jid = data.get(JID);
+				JabberApp.instance().dj_authReq(XmppID.parseId(jid));
+			}
+    		
+    	});
+    	
+    	deleteItem = new MenuItem("Delete");
+    	deleteItem.addListener(Events.Select, new Listener()
+    	{
+			public void handleEvent(BaseEvent be) 
+			{
+				//TODO delete user from roster
+			}
+    		
+    	});
+    	
+    	onlineOnly = new CheckMenuItem("Show online only");
+    	onlineOnly.setChecked(false);
+    	onlineOnly.addListener(Events.Select, new Listener()
+    	{
+			public void handleEvent(BaseEvent be) 
+			{
+				//TODO set the roster panel filter to show online only or show all 
+			}
+    		
+    	});
+    	
+    	menu.add(chatItem);
+    	menu.add(infoItem);
+    	menu.add(requestAuth);
+    	menu.add(deleteItem);
+    	menu.add(new SeparatorMenuItem());
+    	menu.add(onlineOnly);
+    	
+    	
+		return menu;
     }
 }

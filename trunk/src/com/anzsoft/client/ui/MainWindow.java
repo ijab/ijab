@@ -40,6 +40,7 @@ public class MainWindow extends Window
 	protected StatusButtonBar buttonBar;
 	
 	private Button logoutButton;
+	private Button addUserButton;
 	public MainWindow(XmppSession session)
 	{
 		setLayout(new RowLayout());
@@ -63,6 +64,17 @@ public class MainWindow extends Window
 		buttonBar.setButtonAlign(HorizontalAlignment.LEFT);
 		setButtonBar(buttonBar);
 		
+		addUserButton = new Button(JabberApp.getConstants().invite());
+		addUserButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+		{
+
+			public void componentSelected(ButtonEvent ce) 
+			{
+				JabberApp.instance().doAddUser();
+			}
+
+		});
+		
 		logoutButton = new Button(JabberApp.getConstants().logout());
 		logoutButton.addSelectionListener(new SelectionListener<ButtonEvent>()
 		{
@@ -72,6 +84,7 @@ public class MainWindow extends Window
 			}
 		});
 		
+		buttonBar.add(addUserButton);
 		buttonBar.add(logoutButton);
 	}
 	
