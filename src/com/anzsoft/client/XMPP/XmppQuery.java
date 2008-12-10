@@ -22,10 +22,13 @@
 
 package com.anzsoft.client.XMPP;
 
+import com.google.gwt.dom.client.Node;
+
+
 public interface XmppQuery extends XmppPacket {
     String TYPE_SET = "set";
     String TYPE_GET = "get";
     String getQueryXMLNS();
-    void createQueryNode(String xmlns);
+    Node createQueryNode(String xmlns);
 
 }

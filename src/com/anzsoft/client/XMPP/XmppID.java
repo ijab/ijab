@@ -34,7 +34,7 @@ public class XmppID {
 	this.domain = domain;
 	this.resource = resource;
     }
-
+    
     public String getDomain() {
 	return domain;
     }
@@ -128,6 +128,41 @@ public class XmppID {
 	} else if (!resource.equals(other.resource))
 	    return false;
 	return true;
+    }
+    
+    public boolean compareNoResouce(final XmppID other)
+    {
+    	if (this == other)
+    	    return true;
+    	if (other == null)
+    	    return false;
+    	if (domain == null) {
+    	    if (other.domain != null)
+    		return false;
+    	} else if (!domain.equals(other.domain))
+    	    return false;
+    	if (node == null) {
+    	    if (other.node != null)
+    		return false;
+    	} else if (!node.equals(other.node))
+    	    return false;
+    	return true;
+    }
+    
+    public boolean compareNoResouce(final String jid)
+    {
+    	final XmppID other = XmppID.parseId(jid);
+    	if (domain == null) {
+    	    if (other.domain != null)
+    		return false;
+    	} else if (!domain.equals(other.domain))
+    	    return false;
+    	if (node == null) {
+    	    if (other.node != null)
+    		return false;
+    	} else if (!node.equals(other.node))
+    	    return false;
+    	return true;
     }
 
 

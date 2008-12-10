@@ -506,7 +506,7 @@ public class RosterPanel extends ContentPanel
 				if(data == null)
 					return;
 				String jid = data.get(JID);
-				JabberApp.instance().dj_authReq(XmppID.parseId(jid));
+				JabberApp.instance().dj_authReq(XmppID.parseId(jid),"");
 			}
     		
     	});
@@ -516,7 +516,11 @@ public class RosterPanel extends ContentPanel
     	{
 			public void handleEvent(BaseEvent be) 
 			{
-				//TODO delete user from roster
+				List<ContactData> datas = store.getModels();
+				ContactData data = datas.get(currentItem);
+				if(data == null)
+					return;
+				String jid = data.get(JID);
 			}
     		
     	});

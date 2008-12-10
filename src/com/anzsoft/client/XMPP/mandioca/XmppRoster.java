@@ -33,6 +33,7 @@ import com.anzsoft.client.XMPP.XmppInfoQueryListener;
 import com.anzsoft.client.XMPP.XmppPacket;
 import com.anzsoft.client.XMPP.XmppQuery;
 import com.anzsoft.client.utils.XMLHelper;
+import com.google.gwt.dom.client.Node;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
@@ -71,7 +72,9 @@ public class XmppRoster
 		XmppQuery query = session.getFactory().createQuery();
 		query.setType(XmppQuery.TYPE_GET);
 		query.setID("roster_1");
-		query.createQueryNode("jabber:iq:roster");
+		Node queryNode = query.createQueryNode("jabber:iq:roster");
+		String name = queryNode.getNodeName();
+		
 		session.send(query);
     }
     
