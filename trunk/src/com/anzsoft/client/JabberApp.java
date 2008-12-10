@@ -478,19 +478,19 @@ public class JabberApp
 		}
 	}
 	
-	public void dj_authReq(final XmppID id)
+	public void dj_authReq(final XmppID id,final String status)
 	{
-		session.getUser().sendSubScription(id, "subscribe", "");
+		session.getUser().sendSubScription(id, "subscribe", "",status);
 	}
 	
 	private void dj_auth(final  XmppID id)
 	{
-		session.getUser().sendSubScription(id, "subscribed", "");
+		session.getUser().sendSubScription(id, "subscribed", "","");
 	}
 	
 	private void dj_deny(final XmppID id)
 	{
-		session.getUser().sendSubScription(id, "unsubscribed", "");
+		session.getUser().sendSubScription(id, "unsubscribed", "","");
 	}
 	
 	public void doAddUser()

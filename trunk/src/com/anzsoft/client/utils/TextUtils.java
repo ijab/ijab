@@ -63,4 +63,24 @@ public class TextUtils {
         result = result.replaceAll("&gt;", ">");
         return result;
     }
+    
+    public static String genUniqueId()
+    {
+  	  char[] s = new char[5];
+  	  char itoh[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+  	  for (int i = 0; i < 5; i++)
+  	  {
+  		  s[i] = (char) Math.floor(Math.random()*0x10);
+  	  }
+
+  	  //s[14] = 4;
+  	  //s[19] =(char) ((s[19] & 0x3) | 0x8);
+
+  	  for (int i = 0; i < 5; i++)
+  		  s[i] = itoh[s[i]];
+
+  	  //s[8] = s[13] = s[18] = s[23] = '-';
+
+  	  return new String(s);
+    }
 }

@@ -25,6 +25,8 @@ package com.anzsoft.client.XMPP.impl;
 import com.anzsoft.client.XMPP.XmppID;
 import com.anzsoft.client.XMPP.XmppPacket;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.xml.client.Node;
 
 class JsJacPacket implements XmppPacket {
     protected final JavaScriptObject delegate;
@@ -105,5 +107,14 @@ class JsJacPacket implements XmppPacket {
     public native String toXML() /*-{
 	return this.@com.anzsoft.client.XMPP.impl.JsJacPacket::delegate.xml();
     }-*/;
+
+	public native Node getNode() /*-{
+	return this.@com.anzsoft.client.XMPP.impl.JsJacPacket::delegate.getNode();	
+	}-*/;
+
+	public native Document getDoc() 
+	/*-{
+		return this.@com.anzsoft.client.XMPP.impl.JsJacPacket::delegate.getDoc();
+	}-*/;
 
 }

@@ -71,11 +71,12 @@ public class XmppUser
 		session.send(message);
     }
     
-    public void sendSubScription(final XmppID id,final String type,final String nick)
+    public void sendSubScription(final XmppID id,final String type,final String nick,final String status)
     {
     	XmppPresence subscription = session.getFactory().createPresence();
     	subscription.setTo(id);
     	subscription.setType(type);
+    	subscription.setStatus(status);
     	if(!nick.isEmpty())
     	{
     		//TODO : support nickname feature

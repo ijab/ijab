@@ -22,8 +22,15 @@
 
 package com.anzsoft.client.XMPP;
 
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.xml.client.Node;
+
 public interface XmppPacket {
 
+	Node getNode();
+	
+	Document getDoc();
+	
     String getFrom();
 
     XmppID getFromID();
