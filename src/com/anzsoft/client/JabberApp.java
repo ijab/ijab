@@ -41,19 +41,27 @@ import com.anzsoft.client.XMPP.XmppUserSettings.AuthType;
 import com.anzsoft.client.XMPP.impl.JsJacFactory;
 import com.anzsoft.client.XMPP.log.DebugPanel;
 import com.anzsoft.client.XMPP.log.GWTLoggerOutput;
+import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery;
 import com.anzsoft.client.XMPP.mandioca.XmppContact;
 import com.anzsoft.client.XMPP.mandioca.XmppContactStatus;
+import com.anzsoft.client.XMPP.mandioca.XmppPushRoster;
 import com.anzsoft.client.XMPP.mandioca.XmppRosterListener;
 import com.anzsoft.client.XMPP.mandioca.XmppSession;
 import com.anzsoft.client.ui.ChatWindow;
 import com.anzsoft.client.ui.LoginDialog;
 import com.anzsoft.client.ui.MainWindow;
 import com.anzsoft.client.ui.RosterPanel;
+import com.anzsoft.client.ui.UserAddDialog;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.WindowEvent;
+
 public class JabberApp 
 {
 	public interface LoginListener
@@ -62,6 +70,7 @@ public class JabberApp
 	}
 	private static JabberApp _instance = null;
 	private XmppSession session = null;
+	private ServiceDiscovery disco;
 	private XmppConnection connection = null;
 	private XmppPresenceListener presenceListener = null;
 	private XmppEventAdapter eventAdapter = null;
@@ -73,7 +82,7 @@ public class JabberApp
 	private String httpBind = "/http-bind/";
 	private String host = "samespace.anzsoft.com";
 	private int port = 5222;
-	private String domain = "anzsoft.com";
+	public String domain = "anzsoft.com";
 	private String authType = "sasl";
 	
 	private Window debugWindow =  null;
@@ -81,7 +90,7 @@ public class JabberApp
 	final boolean Debug = true;
 	
 	private LoginDialog loginDlg = new LoginDialog();
-	
+	private UserAddDialog userAddDlg = null;
 	
 	static iJabConstants constants = null;
 	private RosterPanel rosterPanel = null;
@@ -127,6 +136,11 @@ public class JabberApp
 	
 	public void doLogin()
 	{		
+		if(userAddDlg != null)
+		{
+			userAddDlg.close();
+			userAddDlg = null;
+		}
 		if(mainWindow != null)
 		{
 			mainWindow.close();
@@ -150,6 +164,8 @@ public class JabberApp
 		if(eventAdapter != null)
 			connection.addEventListener(eventAdapter);
 		session = new XmppSession(connection, true);
+		disco = new ServiceDiscovery(session);
+		new XmppPushRoster(session);
 		XmppUserSettings userSetting = new XmppUserSettings(host,port,domain, user, pass, AuthType.fromString(authType));
 		session.login(userSetting);
 		session.getUser().getRoster().addRosterListener(createRosterListener());
@@ -157,10 +173,13 @@ public class JabberApp
 	
 	public void onLogin(final String host,final int port,final String domain,boolean sasl,final String user,final String pass,XmppEventAdapter eventAdapter)
 	{
+		this.domain = domain;
 		initConnection();
 		if(eventAdapter != null)
 			connection.addEventListener(eventAdapter);
 		session = new XmppSession(connection, true);
+		disco = new ServiceDiscovery(session);
+		new XmppPushRoster(session);
 		XmppUserSettings userSetting;
 		if(sasl)
 			userSetting = new XmppUserSettings(host,port,domain, user, pass, XmppUserSettings.SASL);
@@ -290,6 +309,12 @@ public class JabberApp
 				{
 					XmppID id = presence.getFromID();
 					String jid = id.toStringNoResource();
+					String type = presence.getType();
+					if(type != null&&(type.equals("subscribe")||type.equals("subscribed")||type.equals("unsubscribe")||type.equals("unsubscribed")))
+					{
+						onSubscription(id,type,presence.getNick());
+						return;
+					}
 					String show = new String("");
 					PresenceShow presenceShow = presence.getShow();
 					if(presenceShow!=null)
@@ -297,7 +322,6 @@ public class JabberApp
 					String statusString = presence.getStatus();
 					int priority = presence.getPriority();
 					boolean avaiable = true;
-					String type = presence.getType();
 					if(type != null&&!type.isEmpty())
 					{
 						if(type.equalsIgnoreCase("unavailable"))
@@ -359,28 +383,31 @@ public class JabberApp
 				if(silent)
 					contactDatas = contacts;
 				else
+				{
 					try
 					{
 						mainWindow = new MainWindow(session);
 						rosterPanel = mainWindow.getRosterPanel();
-					    rosterPanel.setRoster(contacts);
-					    mainWindow.layout();
-					    loginDlg.close();
-					    loginDlg = null;
-					    
-					    mainWindow.show();
-					    
-					    RootPanel root = RootPanel.get();
-					    int  x = root.getOffsetWidth() - mainWindow.getOffsetWidth();
-					    mainWindow.setPosition(x, 0);
+						rosterPanel.setRoster(contacts);
+						mainWindow.layout();
+						loginDlg.close();
+						loginDlg = null;
+
+						mainWindow.show();
+
+						RootPanel root = RootPanel.get();
+						int  x = root.getOffsetWidth() - mainWindow.getOffsetWidth();
+						mainWindow.setPosition(x, 0);
 					}
 					catch(Exception e)
 					{
 						MessageBox.alert(e.toString(), null, null);
 					}
-					
+
 					if(loginListener != null)
 						loginListener.onLogined();
+				}
+				disco.getDiscoItems();
 			}			
 		};
 		return listener;
@@ -406,4 +433,78 @@ public class JabberApp
 			return false;
 		return connection.isConnected();
 	}
+	
+	private void onSubscription(final XmppID id,final String subStr,final String nick)
+	{
+		if(subStr.equals("unsubscribed"))
+		{
+			//TODO: delete the roster item from the panel
+			return;
+		}
+		else if(subStr.equals("subscribe"))
+		{
+			//TODO: deal the incoming auth request
+			String userString;
+			if(nick != null && !nick.isEmpty())
+				userString = nick +"<"+id.toStringNoResource()+">";
+			else
+				userString = id.toStringNoResource();
+			MessageBox.confirm("Auth Confirm",userString + constants.auth_requst() ,new Listener<WindowEvent>()
+					{
+						public void handleEvent(WindowEvent be) 
+						{
+							Dialog dialog = (Dialog) be.component;
+							Button btn = dialog.getButtonPressed();
+							if(btn.getItemId().equals(Dialog.YES))
+							{
+								dj_auth(id);
+							}
+							else
+							{
+								dj_deny(id);
+							}
+						}
+
+					});
+			
+		}
+		else if(subStr.equals("subscribed"))
+		{
+			//do nothing
+		}
+		else if(subStr.equals("unsubscribe"))
+		{
+			//do nothing
+		}
+	}
+	
+	public void dj_authReq(final XmppID id)
+	{
+		session.getUser().sendSubScription(id, "subscribe", "");
+	}
+	
+	private void dj_auth(final  XmppID id)
+	{
+		session.getUser().sendSubScription(id, "subscribed", "");
+	}
+	
+	private void dj_deny(final XmppID id)
+	{
+		session.getUser().sendSubScription(id, "unsubscribed", "");
+	}
+	
+	public void doAddUser()
+	{
+		if(userAddDlg == null)
+			userAddDlg = new UserAddDialog(disco);
+		else
+			userAddDlg.reloadServices();
+		userAddDlg.show();
+	}
+	
+	public void pushRosterIncoming(final Map<String,XmppContact> roster)
+	{
+		rosterPanel.pushRosterIncoming(roster);
+	}
+
 }

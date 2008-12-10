@@ -38,6 +38,16 @@ public class XMLHelper
 			return null;
 	}
 	
+	public static Element findSubTag(final Element e,final String tagName)
+	{
+		if(e == null)
+			return null;
+		NodeList list = e.getElementsByTagName(tagName);
+		if(list.getLength()>0)
+			return (Element) list.item(0);
+		return null;
+	}
+	
 	public static String queryNS(final Element e)
 	{
 		Element queryElement = queryTag(e);

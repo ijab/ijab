@@ -38,5 +38,7 @@ public interface XmppPresence extends XmppPacket {
     void setShow(PresenceShow presenceShow);
 
     void setStatus(String message);
+    
+    String getNick();
 
 }

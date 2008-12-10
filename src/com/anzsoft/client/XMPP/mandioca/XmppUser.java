@@ -26,6 +26,7 @@ import java.util.Iterator;
 
 import com.anzsoft.client.XMPP.HandlerCollection;
 import com.anzsoft.client.XMPP.PresenceShow;
+import com.anzsoft.client.XMPP.XmppID;
 import com.anzsoft.client.XMPP.XmppMessage;
 import com.anzsoft.client.XMPP.XmppPresence;
 
@@ -58,6 +59,7 @@ public class XmppUser
 		session.send(presence);
 		fireOnPresenceChanged();
     }
+    
 
     public void sendMessage(final String body, final String destination)
     {
@@ -67,6 +69,18 @@ public class XmppUser
 		message.setBody(body);
 		message.setType(XmppMessage.TYPE_CHAT);
 		session.send(message);
+    }
+    
+    public void sendSubScription(final XmppID id,final String type,final String nick)
+    {
+    	XmppPresence subscription = session.getFactory().createPresence();
+    	subscription.setTo(id);
+    	subscription.setType(type);
+    	if(!nick.isEmpty())
+    	{
+    		//TODO : support nickname feature
+    	}
+    	session.send(subscription);    	
     }
 
 

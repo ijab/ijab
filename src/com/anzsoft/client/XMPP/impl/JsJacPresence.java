@@ -24,8 +24,12 @@ package com.anzsoft.client.XMPP.impl;
 
 import com.anzsoft.client.XMPP.PresenceShow;
 import com.anzsoft.client.XMPP.XmppPresence;
+import com.anzsoft.client.utils.XMLHelper;
 import com.google.gwt.core.client.JavaScriptException;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 
 class JsJacPresence extends JsJacPacket implements XmppPresence{
 
@@ -86,6 +90,20 @@ class JsJacPresence extends JsJacPacket implements XmppPresence{
     private native void setShowID(String showID)  /*-{
 	this.@com.anzsoft.client.XMPP.impl.JsJacPacket::delegate.setShow(showID);
     }-*/;
+
+
+	public String getNick() 
+	{
+		String xml = toXML();
+		Document doc = XMLParser.parse(xml);
+		Element rootEl = doc.getDocumentElement();
+		if(!rootEl.getTagName().equals("presence"))
+			return "";
+		Element nickEl = XMLHelper.findSubTag(rootEl, "nick");
+		if(nickEl != null && nickEl.getAttribute("xmlns").equals("http://jabber.org/protocol/nick"))
+			return nickEl.getNodeValue();
+		return "";
+	}
 
 
 }

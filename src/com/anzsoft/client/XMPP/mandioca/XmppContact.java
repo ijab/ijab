@@ -54,7 +54,11 @@ public class XmppContact
          * information, but the contact does not have a subscription to the
          * user's presence information
          */
-        to
+        to,
+        /**
+         * "remove" -- the use has removed from the roster
+         */
+        remove
     }
 	
 	private final ArrayList<String> groups;
