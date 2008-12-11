@@ -32,12 +32,13 @@ import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
@@ -45,6 +46,9 @@ import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.util.Params;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -115,7 +119,12 @@ public class RosterPanel extends ContentPanel
     private MenuItem infoItem;
     private MenuItem requestAuth;
     private MenuItem deleteItem;
+    private MenuItem renameItem;
     private CheckMenuItem onlineOnly;
+    private MenuItem groupMenuItem;
+    private Menu groupMenu;
+    
+    private List<String> m_groups = new ArrayList<String>();
        
     public RosterPanel(final String emptyText)
     {
@@ -154,12 +163,30 @@ public class RosterPanel extends ContentPanel
     			ContactData data = getContactData(contact.getJID().toString());
     			if(data != null)
     			{
+    				String alias = contact.getName();
+    		    	if(alias == null || alias.isEmpty())
+    		    	{
+    		    		alias = contact.getJID().getNode();
+    		    	}
+    		    	
+    		    	String group = JabberApp.getConstants().buddies();
+    		    	if(contact.getGroups().size()>0)
+    		    		group = contact.getGroups().get(0);
+    		    	if(group!=null&&group.equalsIgnoreCase("@everybody@"))
+    		    		group = JabberApp.getConstants().buddies();
+    		    	
+    		    	if(!m_groups.contains(group))
+    		    	{
+    		    		m_groups.add(group);
+    		    	}
+    		    	
     				final String statusFormated = formatStatus(contact.getStatus());
     				data.set(STATUSTEXT, statusFormated);
+    				data.set(ALIAS, alias);
     				data.set(STATUSIMG, formatStatusIcon(contact.getStatus()));
     				data.set(STATUSVALUE, contact.getStatus().type().ordinal());
     				if(!contact.getGroups().isEmpty()&&!contact.getGroups().get(0).isEmpty())
-    				data.set(USER_GROUP_DD, contact.getGroups().get(0));
+    				data.set(USER_GROUP_DD, group);
     		    	store.update(data);
     		    	sort();
     			}
@@ -199,6 +226,11 @@ public class RosterPanel extends ContentPanel
     		group = contact.getGroups().get(0);
     	if(group!=null&&group.equalsIgnoreCase("@everybody@"))
     		group = JabberApp.getConstants().buddies();
+    	
+    	if(!m_groups.contains(group))
+    	{
+    		m_groups.add(group);
+    	}
     	
     	final ContactData data = new ContactData(contact.getAvatar(),jid, alias,
    			 statusIcon, statusFormated,group,contact.getStatus().type().ordinal());
@@ -368,8 +400,6 @@ public class RosterPanel extends ContentPanel
     	config.add(avatarColumnConfig);
     	config.add(groupColumnConfig);
     	final ColumnModel columnModel = new ColumnModel(config);
-
-
     	   
     	final GroupingView  view = new GroupingView();
     	// i18n
@@ -392,7 +422,6 @@ public class RosterPanel extends ContentPanel
 
     	});
     	view.setShowGroupedColumn(false);
-    		
     	
     	Grid<ContactData> grid = new Grid<ContactData>(store,columnModel);
     	grid.setContextMenu(createContextMenu());
@@ -471,9 +500,9 @@ public class RosterPanel extends ContentPanel
     {
     	Menu menu = new Menu();
     	chatItem = new MenuItem("Open Chat");
-    	chatItem.addListener(Events.Select, new Listener()
+    	chatItem.addListener(Events.Select, new Listener<MenuEvent>()
     	{
-			public void handleEvent(BaseEvent be) 
+			public void handleEvent(MenuEvent me) 
 			{
 				List<ContactData> datas = store.getModels();
 				ContactData data = datas.get(currentItem);
@@ -487,9 +516,9 @@ public class RosterPanel extends ContentPanel
     	});
     	
     	infoItem = new MenuItem("User Info");
-    	infoItem.addListener(Events.Select, new Listener()
+    	infoItem.addListener(Events.Select, new Listener<MenuEvent>()
     	{
-			public void handleEvent(BaseEvent be) {
+			public void handleEvent(MenuEvent me) {
 				// TODO Auto-generated method stub
 				
 			}
@@ -497,9 +526,9 @@ public class RosterPanel extends ContentPanel
     	});
     	
     	requestAuth = new MenuItem("Rerequset authorization");
-    	requestAuth.addListener(Events.Select, new Listener()
+    	requestAuth.addListener(Events.Select, new Listener<MenuEvent>()
     	{
-			public void handleEvent(BaseEvent be) 
+			public void handleEvent(MenuEvent me) 
 			{
 				List<ContactData> datas = store.getModels();
 				ContactData data = datas.get(currentItem);
@@ -512,37 +541,146 @@ public class RosterPanel extends ContentPanel
     	});
     	
     	deleteItem = new MenuItem("Delete");
-    	deleteItem.addListener(Events.Select, new Listener()
+    	deleteItem.addListener(Events.Select, new Listener<MenuEvent>()
     	{
-			public void handleEvent(BaseEvent be) 
+			public void handleEvent(MenuEvent me) 
 			{
 				List<ContactData> datas = store.getModels();
 				ContactData data = datas.get(currentItem);
 				if(data == null)
 					return;
-				String jid = data.get(JID);
+				final String jid = data.get(JID);				
+				String msg = "Are you sure you want to delete the user "+jid+" from your contact list?";
+				MessageBox.confirm("Confirm",msg, new Listener<WindowEvent>()
+				{
+					public void handleEvent(WindowEvent be) 
+					{
+						Dialog dialog = (Dialog) be.component;
+						Button btn = dialog.getButtonPressed();
+						if(btn.getItemId().equals(Dialog.YES))
+							JabberApp.instance().removeUser(XmppID.parseId(jid));
+							
+					}
+
+				});
 			}
     		
     	});
     	
     	onlineOnly = new CheckMenuItem("Show online only");
     	onlineOnly.setChecked(false);
-    	onlineOnly.addListener(Events.Select, new Listener()
+    	onlineOnly.addListener(Events.Select, new Listener<MenuEvent>()
     	{
-			public void handleEvent(BaseEvent be) 
+			public void handleEvent(MenuEvent me) 
 			{
 				//TODO set the roster panel filter to show online only or show all 
 			}
     		
     	});
     	
+    	renameItem = new MenuItem("Rename");
+    	renameItem.addListener(Events.Select, new Listener<MenuEvent>()
+    	{
+			public void handleEvent(MenuEvent me) 
+			{
+				List<ContactData> datas = store.getModels();
+				ContactData data = datas.get(currentItem);
+				if(data == null)
+					return;
+				final String jid = data.get(JID);		
+				final String nick = data.get(ALIAS);
+				final MessageBox box = MessageBox.prompt("Rename", "Please enter the new name for "+nick+":");
+				box.addCallback(new Listener<MessageBoxEvent>() 
+				{  
+					public void handleEvent(MessageBoxEvent be) 
+					{  
+						if(!be.value.isEmpty())
+						{
+							if(!be.buttonClicked.getItemId().equals(MessageBox.OK))
+								return;
+							if(!nick.equals(be.value))
+								JabberApp.instance().renameUser(XmppID.parseId(jid), be.value);
+						}
+					}  
+				});
+			}
+    		
+    	});
+    	
+    	groupMenuItem = new MenuItem("Group");
+    	groupMenu = new Menu();
+    	groupMenuItem.setSubMenu(groupMenu);
+    	groupMenuItem.addListener(Events.Activate, new Listener<MenuEvent>()
+    	{
+			public void handleEvent(MenuEvent be) 
+			{
+				List<ContactData> datas = store.getModels();
+				ContactData data = datas.get(currentItem);
+				if(data == null)
+					return;
+				final String jid = data.get(JID);
+				final String group = data.get(USER_GROUP_DD);
+				final String nick = data.get(ALIAS);
+				
+				Menu groupMenu = groupMenuItem.getSubMenu();
+				groupMenu.removeAll();
+				for(String g:m_groups)
+				{
+					CheckMenuItem gItem = new CheckMenuItem(g);
+					gItem.setGroup("groups");
+					if(g.equals(group))
+						gItem.setChecked(true);
+					groupMenu.add(gItem);
+					gItem.addListener(Events.Select, new Listener<MenuEvent>()
+					{
+						public void handleEvent(MenuEvent be) 
+						{
+							MenuItem mItem = (MenuItem)be.item;
+							String newGroup = mItem.getText();
+							if(!newGroup.equals(group))
+								JabberApp.instance().changeGroup(XmppID.parseId(jid),nick, newGroup);
+						}
+						
+					});
+				}
+				groupMenu.add(new SeparatorMenuItem());
+				MenuItem newGroupItem = new MenuItem("New Group");
+				newGroupItem.addListener(Events.Select, new Listener<MenuEvent>()
+				{
+					public void handleEvent(MenuEvent be) 
+					{
+						final MessageBox box = MessageBox.prompt("New Group", "Please enter the new group name");
+						box.addCallback(new Listener<MessageBoxEvent>() 
+						{  
+							public void handleEvent(MessageBoxEvent be) 
+							{  
+								if(!be.value.isEmpty())
+								{
+									if(!be.buttonClicked.getItemId().equals(MessageBox.OK))
+										return;
+									if(!group.equals(be.value))
+										JabberApp.instance().changeGroup(XmppID.parseId(jid),nick, be.value);
+								}
+							}  
+						});
+					}
+					
+				});
+				groupMenu.add(newGroupItem);
+				
+			}
+    		
+    	});
+    	
     	menu.add(chatItem);
     	menu.add(infoItem);
+    	menu.add(new SeparatorMenuItem());
+    	menu.add(renameItem);
+    	menu.add(groupMenuItem);
     	menu.add(requestAuth);
     	menu.add(deleteItem);
     	menu.add(new SeparatorMenuItem());
     	menu.add(onlineOnly);
-    	
     	
 		return menu;
     }

@@ -24,7 +24,7 @@ package com.anzsoft.client.XMPP.impl;
 
 import com.anzsoft.client.XMPP.XmppQuery;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.Element;
 
 public class JsJacQuery extends JsJacPacket implements XmppQuery {
     public JsJacQuery() {
@@ -39,7 +39,7 @@ public class JsJacQuery extends JsJacPacket implements XmppQuery {
     	return this.@com.anzsoft.client.XMPP.impl.JsJacPacket::delegate.getQueryXMLNS();
     }-*/;
 
-    public native Node createQueryNode(String xmlns) /*-{
+    public native Element createQueryNode(String xmlns) /*-{
     	return this.@com.anzsoft.client.XMPP.impl.JsJacPacket::delegate.setQuery(xmlns);
     }-*/;
 }

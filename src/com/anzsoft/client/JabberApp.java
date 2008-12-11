@@ -20,7 +20,9 @@
 
 package com.anzsoft.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.allen_sauer.gwt.voices.client.Sound;
@@ -41,6 +43,7 @@ import com.anzsoft.client.XMPP.XmppUserSettings.AuthType;
 import com.anzsoft.client.XMPP.impl.JsJacFactory;
 import com.anzsoft.client.XMPP.log.DebugPanel;
 import com.anzsoft.client.XMPP.log.GWTLoggerOutput;
+import com.anzsoft.client.XMPP.mandioca.RosterTask;
 import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery;
 import com.anzsoft.client.XMPP.mandioca.XmppContact;
 import com.anzsoft.client.XMPP.mandioca.XmppContactStatus;
@@ -87,7 +90,7 @@ public class JabberApp
 	
 	private Window debugWindow =  null;
 	private DebugPanel debugPanel = null;
-	final boolean Debug = true;
+	final boolean Debug = false;
 	
 	private LoginDialog loginDlg = new LoginDialog();
 	private UserAddDialog userAddDlg = null;
@@ -450,22 +453,22 @@ public class JabberApp
 			else
 				userString = id.toStringNoResource();
 			MessageBox.confirm("Auth Confirm",userString + constants.auth_requst() ,new Listener<WindowEvent>()
+			{
+				public void handleEvent(WindowEvent be) 
+				{
+					Dialog dialog = (Dialog) be.component;
+					Button btn = dialog.getButtonPressed();
+					if(btn.getItemId().equals(Dialog.YES))
 					{
-						public void handleEvent(WindowEvent be) 
-						{
-							Dialog dialog = (Dialog) be.component;
-							Button btn = dialog.getButtonPressed();
-							if(btn.getItemId().equals(Dialog.YES))
-							{
-								dj_auth(id);
-							}
-							else
-							{
-								dj_deny(id);
-							}
-						}
+						dj_auth(id);
+					}
+					else
+					{
+						dj_deny(id);
+					}
+				}
 
-					});
+			});
 			
 		}
 		else if(subStr.equals("subscribed"))
@@ -500,6 +503,27 @@ public class JabberApp
 		else
 			userAddDlg.reloadServices();
 		userAddDlg.show();
+	}
+	
+	public void removeUser(final XmppID id)
+	{
+		RosterTask task = new RosterTask(session);
+		task.remove(id);
+	}
+	
+	public void renameUser(final XmppID id,final String newName)
+	{
+		RosterTask task = new RosterTask(session);
+		task.set(id, newName, null);
+	}
+	
+	public void changeGroup(final XmppID id,final String name,final String newGroup)
+	{
+		RosterTask task = new RosterTask(session);
+		List<String> groups = new ArrayList<String>();
+		groups.add(newGroup);
+		task.set(id,name, groups);
+		
 	}
 	
 	public void pushRosterIncoming(final Map<String,XmppContact> roster)

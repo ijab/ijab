@@ -22,14 +22,14 @@
 
 package com.anzsoft.client.XMPP;
 
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.xml.client.Node;
+import com.anzsoft.client.utils.XmlDocument;
+import com.google.gwt.dom.client.Node;
 
 public interface XmppPacket {
 
 	Node getNode();
 	
-	Document getDoc();
+	XmlDocument getDoc();
 	
     String getFrom();
 
