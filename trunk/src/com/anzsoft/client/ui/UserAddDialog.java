@@ -6,6 +6,8 @@ import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery;
 import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery.Service;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -16,8 +18,10 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.button.FillButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 
 public class UserAddDialog extends Dialog
@@ -32,18 +36,130 @@ public class UserAddDialog extends Dialog
 	public UserAddDialog(final ServiceDiscovery serviceDisco)
 	{
 		this.serviceDisco = serviceDisco;
-		setHeading(JabberApp.getConstants().addUser());
 		createUI();		
 	}
 	
 	private void createUI()
 	{
 		setButtons("");
+		setHeading(JabberApp.getConstants().addUser());
 		setModal(false);
 		setBodyBorder(true);
 		setInsetBorder(true);
 		setBodyStyle("padding: 0px;background: none");
-		setSize(310,230);
+		setWidth(350);
+		setResizable(false);
+		setClosable(true);
+		setCollapsible(false);
+		
+		FlowLayout layoutMain = new  FlowLayout();
+		setLayout(layoutMain);
+
+		FieldSet fieldSet = new FieldSet();
+		fieldSet.setBorders(false);
+
+		FormLayout layout = new FormLayout();  
+		layout.setLabelWidth(90);
+		layout.setDefaultWidth(175); 
+		layout.setPadding(0);
+		fieldSet.setLayout(layout);  
+		
+		jidField = new TextField<String>();
+		jidField.setFieldLabel("JID");
+		fieldSet.add(jidField);
+
+		ListStore<Service> services = new ListStore<Service>();  
+		services.add(serviceDisco.getGateWays());  
+
+		serviceField = new ComboBox<Service>();
+		serviceField.setFieldLabel("Service");
+		serviceField.setStore(services);
+		serviceField.setDisplayField("name");
+		serviceField.setTypeAhead(true);
+		fieldSet.add(serviceField);   
+		
+		serviceField.addSelectionChangedListener(new SelectionChangedListener<Service>()
+		{
+
+			public void selectionChanged(SelectionChangedEvent<Service> se) 
+			{
+				Service gateWay = se.getSelectedItem();
+				String domain = gateWay.getJid();
+				if(domain == null)
+					domain = "";
+				String value = jidField.getValue();
+				if(value != null)
+				{
+					int i=  value.indexOf("@");
+					if(i != -1)
+						value = value.substring(0, i);
+					if(!domain.isEmpty())
+						value += "@" + domain;
+					jidField.setValue(value);
+				}
+				else
+				{
+					if(!domain.isEmpty())
+						jidField.setValue("@"+domain);
+				}
+			}
+		});
+		serviceField.setValue(serviceDisco.getGateWays().get(0));
+
+		msgField = new TextArea();  
+		msgField.setPreventScrollbars(true);
+		msgField.setFieldLabel("MSG");
+		msgField.setHeight(100);
+		//msgField.setHideLabel(true);
+		fieldSet.add(msgField);
+		
+		add(fieldSet);  
+		
+		
+		closeButton = new Button(JabberApp.getConstants().close());
+		closeButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+		{
+			public void componentSelected(ButtonEvent ce) 
+			{
+				jidField.setValue("");
+				serviceField.setValue(serviceDisco.getGateWays().get(0));
+				close();
+			}
+		});
+		
+		addButton = new Button(JabberApp.getConstants().add());
+		addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+		{
+			public void componentSelected(ButtonEvent ce) 
+			{
+				onAdd();
+			}
+		});
+		
+		searchButton = new Button(JabberApp.getConstants().search());
+		searchButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+		{
+			public void componentSelected(ButtonEvent ce) 
+			{
+				
+			}
+			
+		});
+
+		buttonBar = new ButtonBar();
+		buttonBar.setButtonAlign(HorizontalAlignment.RIGHT);
+		setButtonBar(buttonBar);
+		buttonBar.add(searchButton);
+		buttonBar.add(new FillButton());
+		buttonBar.add(closeButton);
+		buttonBar.add(addButton);
+		/*
+		setButtons("");
+		setModal(false);
+		setBodyBorder(true);
+		setInsetBorder(true);
+		setBodyStyle("padding: 0px;background: none");
+		setSize(310,250);
 		setResizable(false);
 		setClosable(true);
 		setCollapsible(false);
@@ -139,6 +255,7 @@ public class UserAddDialog extends Dialog
 		buttonBar.add(new FillButton());
 		buttonBar.add(closeButton);
 		buttonBar.add(addButton);
+		*/
 	}
 	
 	public void reloadServices()

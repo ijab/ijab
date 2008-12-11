@@ -6,7 +6,6 @@ import com.anzsoft.client.XMPP.XmppID;
 import com.anzsoft.client.XMPP.XmppPacket;
 import com.anzsoft.client.XMPP.XmppQuery;
 import com.anzsoft.client.utils.DOMHelper;
-import com.extjs.gxt.ui.client.widget.menu.Item;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 
@@ -29,13 +28,16 @@ public class RosterTask extends XmppTask
 		iq.setType(XmppQuery.TYPE_SET);
 		iq.setID(id());
 		Node query = iq.createQueryNode("jabber:iq:roster");
-		Element item = (Element)query.appendChild(iq.getDoc().createElement("item"));
+		Element item = query.appendChild(iq.getDoc().createElement("item"));
 		item.setAttribute("jid", jid.toStringNoResource());
 		if(name != null&&!name.isEmpty())
 			item.setAttribute("name", name);
-		for(String group:groups)
+		if(groups != null)
 		{
-			item.appendChild(DOMHelper.textTag(iq.getDoc(), "group", group));
+			for(String group:groups)
+			{
+				item.appendChild(DOMHelper.textTag(iq.getDoc(), "group", group));
+			}
 		}
 		send(iq);
 	}
@@ -45,9 +47,10 @@ public class RosterTask extends XmppTask
 		XmppQuery iq = session.getFactory().createQuery();
 		iq.setType(XmppQuery.TYPE_SET);
 		iq.setID(id());
-		Node query = iq.createQueryNode("jabber:iq:roster");
-		Element item = (Element)query.appendChild(iq.getDoc().createElement("item"));
+		Element query = iq.createQueryNode("jabber:iq:roster");
+		Element item = query.appendChild(iq.getDoc().createElement("item"));
 		item.setAttribute("jid", jid.toStringNoResource());
+		item.setAttribute("subscription", "remove");
 		send(iq);
 	}
 

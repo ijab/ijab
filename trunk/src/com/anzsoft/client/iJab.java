@@ -26,6 +26,7 @@ import com.anzsoft.client.JabberApp.LoginListener;
 import com.anzsoft.client.XMPP.XmppID;
 import com.anzsoft.client.ui.ChatWindow;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.xml.client.Document;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
