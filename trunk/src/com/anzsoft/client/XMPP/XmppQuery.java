@@ -28,6 +28,7 @@ public interface XmppQuery extends XmppPacket {
     String TYPE_SET = "set";
     String TYPE_GET = "get";
     String getQueryXMLNS();
-    Element createQueryNode(String xmlns);
+    Element setQuery(String xmlns);
+    void setIQ(final String to,final String type,final String id);
 
 }

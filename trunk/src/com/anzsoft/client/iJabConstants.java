@@ -60,4 +60,18 @@ public interface iJabConstants extends Constants
 	String close();
 	String invite();
 	String search();
+	String openChat();
+	String userInfo();
+	String Rerequset_authorization();
+	String Delete();
+	String DeleteConfirm();
+	String Show_online_only();
+	String Rename();
+	String RenamePrompt();
+	String Group();
+	String New_Group();
+	String NewGroupPrompt();
+	String Service();
+	String MSG();
+	String Auth_Confirm();
 }

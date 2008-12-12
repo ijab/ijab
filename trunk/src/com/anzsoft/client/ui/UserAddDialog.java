@@ -72,7 +72,7 @@ public class UserAddDialog extends Dialog
 		services.add(serviceDisco.getGateWays());  
 
 		serviceField = new ComboBox<Service>();
-		serviceField.setFieldLabel("Service");
+		serviceField.setFieldLabel(JabberApp.getConstants().Service());
 		serviceField.setStore(services);
 		serviceField.setDisplayField("name");
 		serviceField.setTypeAhead(true);
@@ -108,7 +108,7 @@ public class UserAddDialog extends Dialog
 
 		msgField = new TextArea();  
 		msgField.setPreventScrollbars(true);
-		msgField.setFieldLabel("MSG");
+		msgField.setFieldLabel(JabberApp.getConstants().MSG());
 		msgField.setHeight(100);
 		//msgField.setHideLabel(true);
 		fieldSet.add(msgField);
@@ -153,109 +153,6 @@ public class UserAddDialog extends Dialog
 		buttonBar.add(new FillButton());
 		buttonBar.add(closeButton);
 		buttonBar.add(addButton);
-		/*
-		setButtons("");
-		setModal(false);
-		setBodyBorder(true);
-		setInsetBorder(true);
-		setBodyStyle("padding: 0px;background: none");
-		setSize(310,250);
-		setResizable(false);
-		setClosable(true);
-		setCollapsible(false);
-
-		FormLayout layout = new FormLayout();
-		layout.setLabelWidth(90);
-	    layout.setDefaultWidth(175);
-		setLayout(layout);
-
-		jidField = new TextField<String>();
-		jidField.setFieldLabel("JID");
-		add(jidField);
-
-		ListStore<Service> services = new ListStore<Service>();  
-		services.add(serviceDisco.getGateWays());  
-
-		serviceField = new ComboBox<Service>();
-		serviceField.setFieldLabel("Service");
-		serviceField.setStore(services);
-		serviceField.setDisplayField("name");
-		serviceField.setTypeAhead(true);
-		add(serviceField);   
-		
-		serviceField.addSelectionChangedListener(new SelectionChangedListener<Service>()
-		{
-
-			public void selectionChanged(SelectionChangedEvent<Service> se) 
-			{
-				Service gateWay = se.getSelectedItem();
-				String domain = gateWay.getJid();
-				if(domain == null)
-					domain = "";
-				String value = jidField.getValue();
-				if(value != null)
-				{
-					int i=  value.indexOf("@");
-					if(i != -1)
-						value = value.substring(0, i);
-					if(!domain.isEmpty())
-						value += "@" + domain;
-					jidField.setValue(value);
-				}
-				else
-				{
-					if(!domain.isEmpty())
-						jidField.setValue("@"+domain);
-				}
-			}
-		});
-		serviceField.setValue(serviceDisco.getGateWays().get(0));
-
-		msgField = new TextArea();  
-		msgField.setPreventScrollbars(true);
-		msgField.setFieldLabel("MSG");
-		msgField.setHeight(100);
-		//msgField.setHideLabel(true);
-	    add(msgField);
-		
-		closeButton = new Button(JabberApp.getConstants().close());
-		closeButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-		{
-			public void componentSelected(ButtonEvent ce) 
-			{
-				jidField.setValue("");
-				serviceField.setValue(serviceDisco.getGateWays().get(0));
-				close();
-			}
-		});
-		
-		addButton = new Button(JabberApp.getConstants().add());
-		addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-		{
-			public void componentSelected(ButtonEvent ce) 
-			{
-				onAdd();
-			}
-		});
-		
-		searchButton = new Button(JabberApp.getConstants().search());
-		searchButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-		{
-			public void componentSelected(ButtonEvent ce) 
-			{
-				
-			}
-			
-		});
-
-		buttonBar = new ButtonBar();
-		buttonBar.setButtonAlign(HorizontalAlignment.RIGHT);
-		setButtonBar(buttonBar);
-		buttonBar.add(searchButton);
-		buttonBar.add(new FillButton());
-		buttonBar.add(closeButton);
-		buttonBar.add(addButton);
-		*/
 	}
 	
 	public void reloadServices()

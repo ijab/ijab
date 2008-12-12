@@ -43,6 +43,7 @@ import com.anzsoft.client.XMPP.XmppUserSettings.AuthType;
 import com.anzsoft.client.XMPP.impl.JsJacFactory;
 import com.anzsoft.client.XMPP.log.DebugPanel;
 import com.anzsoft.client.XMPP.log.GWTLoggerOutput;
+import com.anzsoft.client.XMPP.mandioca.PrefsTask;
 import com.anzsoft.client.XMPP.mandioca.RosterTask;
 import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery;
 import com.anzsoft.client.XMPP.mandioca.XmppContact;
@@ -194,6 +195,8 @@ public class JabberApp
 	
 	public void logout()
 	{
+		savePrefs();
+		iJabPrefs.instance().deinit();
 		ChatWindow.clear();
 		session.logout();
 	}
@@ -271,6 +274,7 @@ public class JabberApp
 		{
 			public void onConnect()
 			{
+				getPrefs();
 				session.getUser().getRoster().sendQuery();
 			}
 			
@@ -452,7 +456,7 @@ public class JabberApp
 				userString = nick +"<"+id.toStringNoResource()+">";
 			else
 				userString = id.toStringNoResource();
-			MessageBox.confirm("Auth Confirm",userString + constants.auth_requst() ,new Listener<WindowEvent>()
+			MessageBox.confirm(JabberApp.getConstants().Auth_Confirm(),userString + constants.auth_requst() ,new Listener<WindowEvent>()
 			{
 				public void handleEvent(WindowEvent be) 
 				{
@@ -529,6 +533,22 @@ public class JabberApp
 	public void pushRosterIncoming(final Map<String,XmppContact> roster)
 	{
 		rosterPanel.pushRosterIncoming(roster);
+	}
+	
+	public void getPrefs()
+	{
+		/*
+		PrefsTask task = new PrefsTask(session);
+		task.get();
+		*/
+	}
+	
+	public void savePrefs()
+	{
+		/*
+		PrefsTask task = new PrefsTask(session);
+		task.set();
+		*/
 	}
 
 }

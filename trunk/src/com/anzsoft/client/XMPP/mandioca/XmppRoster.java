@@ -72,7 +72,7 @@ public class XmppRoster
 		XmppQuery query = session.getFactory().createQuery();
 		query.setType(XmppQuery.TYPE_GET);
 		query.setID("roster_1");
-		query.createQueryNode("jabber:iq:roster");
+		query.setQuery("jabber:iq:roster");
 		
 		session.send(query);
     }
