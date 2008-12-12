@@ -27,7 +27,7 @@ public class RosterTask extends XmppTask
 		XmppQuery iq = session.getFactory().createQuery();
 		iq.setType(XmppQuery.TYPE_SET);
 		iq.setID(id());
-		Node query = iq.createQueryNode("jabber:iq:roster");
+		Node query = iq.setQuery("jabber:iq:roster");
 		Element item = query.appendChild(iq.getDoc().createElement("item"));
 		item.setAttribute("jid", jid.toStringNoResource());
 		if(name != null&&!name.isEmpty())
@@ -47,7 +47,7 @@ public class RosterTask extends XmppTask
 		XmppQuery iq = session.getFactory().createQuery();
 		iq.setType(XmppQuery.TYPE_SET);
 		iq.setID(id());
-		Element query = iq.createQueryNode("jabber:iq:roster");
+		Element query = iq.setQuery("jabber:iq:roster");
 		Element item = query.appendChild(iq.getDoc().createElement("item"));
 		item.setAttribute("jid", jid.toStringNoResource());
 		item.setAttribute("subscription", "remove");

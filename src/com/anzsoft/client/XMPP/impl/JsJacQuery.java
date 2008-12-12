@@ -39,7 +39,12 @@ public class JsJacQuery extends JsJacPacket implements XmppQuery {
     	return this.@com.anzsoft.client.XMPP.impl.JsJacPacket::delegate.getQueryXMLNS();
     }-*/;
 
-    public native Element createQueryNode(String xmlns) /*-{
+    public native Element setQuery(String xmlns) /*-{
     	return this.@com.anzsoft.client.XMPP.impl.JsJacPacket::delegate.setQuery(xmlns);
     }-*/;
+
+	public native void setIQ(String to, String type, String id) 
+	/*-{
+		this.@com.anzsoft.client.XMPP.impl.JsJacPacket::delegate.setIQ(to,type,id);
+	}-*/;
 }

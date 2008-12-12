@@ -97,7 +97,7 @@ public class ServiceDiscovery
 		query.setID("disco_item_1");
 		XmppID jid = XmppID.parseId(session.getUser().getID());
 		query.setTo(jid.getDomain());
-		query.createQueryNode("http://jabber.org/protocol/disco#items");
+		query.setQuery("http://jabber.org/protocol/disco#items");
 		session.send(query);
 	}
 	
@@ -107,7 +107,7 @@ public class ServiceDiscovery
 		query.setType(XmppQuery.TYPE_GET);
 		query.setID("disco_info_"+info_id);
 		query.setTo(jid);
-		query.createQueryNode("http://jabber.org/protocol/disco#info");
+		query.setQuery("http://jabber.org/protocol/disco#info");
 		session.send(query);
 		info_id++;
 	}

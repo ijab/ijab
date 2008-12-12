@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.anzsoft.client.JabberApp;
+import com.anzsoft.client.iJabPrefs;
 import com.anzsoft.client.utils.ChatIcons;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -120,11 +121,13 @@ public class RosterPanel extends ContentPanel
     private MenuItem requestAuth;
     private MenuItem deleteItem;
     private MenuItem renameItem;
-    private CheckMenuItem onlineOnly;
+    private CheckMenuItem onlineOnlyItem;
     private MenuItem groupMenuItem;
     private Menu groupMenu;
+    private GroupingView view;
     
     private List<String> m_groups = new ArrayList<String>();
+    //StoreFilter<ContactData> onlineOnlyFilter = null;
        
     public RosterPanel(final String emptyText)
     {
@@ -270,6 +273,8 @@ public class RosterPanel extends ContentPanel
     
     public void updateContactStatus(final String jid,final XmppContactStatus status)
     {
+    	if(iJabPrefs.instance().showOnlineOnly)
+    		store.clearFilters();
     	final ContactData dataToUpdate = store.findModel(JID, jid);
     	if(dataToUpdate == null)
     		return;
@@ -281,6 +286,8 @@ public class RosterPanel extends ContentPanel
     	//store.commitChanges();
     	sort();
     	doLayoutIfNeeded();
+    	if(iJabPrefs.instance().showOnlineOnly)
+    		store.applyFilters("");
     }
     
     public void setWidth(final int width) 
@@ -317,9 +324,24 @@ public class RosterPanel extends ContentPanel
 				String filterText = field.getRawValue();
 				String alias = item.get(ALIAS);
 				String jid = item.get(JID);
-				if(alias.startsWith(filterText.toLowerCase())||jid.startsWith(filterText.toLowerCase()))
-					return true;
-				return false;
+				if(filterText.length() >0 )
+				{
+					if(alias.startsWith(filterText.toLowerCase())||jid.startsWith(filterText.toLowerCase()))
+						return true;
+					return false;
+				}
+				else
+				{
+					if(iJabPrefs.instance().showOnlineOnly)
+					{
+						Integer status = item.get(STATUSVALUE);
+						if(status.intValue() == 0)
+							return false;
+						return true;
+					}
+					else
+						return true;
+				}
 			}
     		
     	};
@@ -332,7 +354,15 @@ public class RosterPanel extends ContentPanel
     			if(field.getRawValue().length()>0)
     				store.applyFilters("");
     			else
-    				store.clearFilters();
+    			{
+    				if(iJabPrefs.instance().showOnlineOnly)
+    				{
+    					store.clearFilters();
+    					store.applyFilters("");
+    				}
+    				else
+    					store.clearFilters();
+    			}
     		}
     	});
     	return field;
@@ -401,7 +431,7 @@ public class RosterPanel extends ContentPanel
     	config.add(groupColumnConfig);
     	final ColumnModel columnModel = new ColumnModel(config);
     	   
-    	final GroupingView  view = new GroupingView();
+    	view = new GroupingView();
     	// i18n
     	view.setForceFit(true);  
     	view.setGroupRenderer(new GridGroupRenderer()
@@ -423,7 +453,7 @@ public class RosterPanel extends ContentPanel
     	});
     	view.setShowGroupedColumn(false);
     	
-    	Grid<ContactData> grid = new Grid<ContactData>(store,columnModel);
+    	grid = new Grid<ContactData>(store,columnModel);
     	grid.setContextMenu(createContextMenu());
     	grid.setWidth("100%");
     	grid.setHeight("100%");
@@ -499,7 +529,7 @@ public class RosterPanel extends ContentPanel
     private Menu createContextMenu()
     {
     	Menu menu = new Menu();
-    	chatItem = new MenuItem("Open Chat");
+    	chatItem = new MenuItem(JabberApp.getConstants().openChat());
     	chatItem.addListener(Events.Select, new Listener<MenuEvent>()
     	{
 			public void handleEvent(MenuEvent me) 
@@ -515,7 +545,7 @@ public class RosterPanel extends ContentPanel
     		
     	});
     	
-    	infoItem = new MenuItem("User Info");
+    	infoItem = new MenuItem(JabberApp.getConstants().userInfo());
     	infoItem.addListener(Events.Select, new Listener<MenuEvent>()
     	{
 			public void handleEvent(MenuEvent me) {
@@ -525,7 +555,7 @@ public class RosterPanel extends ContentPanel
     		
     	});
     	
-    	requestAuth = new MenuItem("Rerequset authorization");
+    	requestAuth = new MenuItem(JabberApp.getConstants().Rerequset_authorization());
     	requestAuth.addListener(Events.Select, new Listener<MenuEvent>()
     	{
 			public void handleEvent(MenuEvent me) 
@@ -540,7 +570,7 @@ public class RosterPanel extends ContentPanel
     		
     	});
     	
-    	deleteItem = new MenuItem("Delete");
+    	deleteItem = new MenuItem(JabberApp.getConstants().Delete());
     	deleteItem.addListener(Events.Select, new Listener<MenuEvent>()
     	{
 			public void handleEvent(MenuEvent me) 
@@ -550,7 +580,7 @@ public class RosterPanel extends ContentPanel
 				if(data == null)
 					return;
 				final String jid = data.get(JID);				
-				String msg = "Are you sure you want to delete the user "+jid+" from your contact list?";
+				String msg = JabberApp.getConstants().DeleteConfirm() +" "+jid+"?";
 				MessageBox.confirm("Confirm",msg, new Listener<WindowEvent>()
 				{
 					public void handleEvent(WindowEvent be) 
@@ -567,18 +597,25 @@ public class RosterPanel extends ContentPanel
     		
     	});
     	
-    	onlineOnly = new CheckMenuItem("Show online only");
-    	onlineOnly.setChecked(false);
-    	onlineOnly.addListener(Events.Select, new Listener<MenuEvent>()
+    	onlineOnlyItem = new CheckMenuItem(JabberApp.getConstants().Show_online_only());
+    	onlineOnlyItem.setChecked(iJabPrefs.instance().showOnlineOnly);
+    	onlineOnlyItem.addListener(Events.Select, new Listener<MenuEvent>()
     	{
 			public void handleEvent(MenuEvent me) 
 			{
-				//TODO set the roster panel filter to show online only or show all 
+				CheckMenuItem item = (CheckMenuItem)me.item;
+				if(item.isChecked())
+					iJabPrefs.instance().showOnlineOnly = true;
+				else
+					iJabPrefs.instance().showOnlineOnly = false;
+				grid.getSelectionModel().deselectAll();
+				store.clearFilters();
+				store.applyFilters("");
 			}
     		
     	});
     	
-    	renameItem = new MenuItem("Rename");
+    	renameItem = new MenuItem(JabberApp.getConstants().Rename());
     	renameItem.addListener(Events.Select, new Listener<MenuEvent>()
     	{
 			public void handleEvent(MenuEvent me) 
@@ -589,7 +626,7 @@ public class RosterPanel extends ContentPanel
 					return;
 				final String jid = data.get(JID);		
 				final String nick = data.get(ALIAS);
-				final MessageBox box = MessageBox.prompt("Rename", "Please enter the new name for "+nick+":");
+				final MessageBox box = MessageBox.prompt(JabberApp.getConstants().Rename(), JabberApp.getConstants().RenamePrompt()+" "+nick+":");
 				box.addCallback(new Listener<MessageBoxEvent>() 
 				{  
 					public void handleEvent(MessageBoxEvent be) 
@@ -607,7 +644,7 @@ public class RosterPanel extends ContentPanel
     		
     	});
     	
-    	groupMenuItem = new MenuItem("Group");
+    	groupMenuItem = new MenuItem(JabberApp.getConstants().Group());
     	groupMenu = new Menu();
     	groupMenuItem.setSubMenu(groupMenu);
     	groupMenuItem.addListener(Events.Activate, new Listener<MenuEvent>()
@@ -644,12 +681,12 @@ public class RosterPanel extends ContentPanel
 					});
 				}
 				groupMenu.add(new SeparatorMenuItem());
-				MenuItem newGroupItem = new MenuItem("New Group");
+				MenuItem newGroupItem = new MenuItem(JabberApp.getConstants().New_Group());
 				newGroupItem.addListener(Events.Select, new Listener<MenuEvent>()
 				{
 					public void handleEvent(MenuEvent be) 
 					{
-						final MessageBox box = MessageBox.prompt("New Group", "Please enter the new group name");
+						final MessageBox box = MessageBox.prompt(JabberApp.getConstants().New_Group(), JabberApp.getConstants().NewGroupPrompt());
 						box.addCallback(new Listener<MessageBoxEvent>() 
 						{  
 							public void handleEvent(MessageBoxEvent be) 
@@ -680,8 +717,16 @@ public class RosterPanel extends ContentPanel
     	menu.add(requestAuth);
     	menu.add(deleteItem);
     	menu.add(new SeparatorMenuItem());
-    	menu.add(onlineOnly);
+    	menu.add(onlineOnlyItem);
     	
 		return menu;
     }
+    
+    public void doFilter()
+    {
+    	store.clearFilters();
+		store.applyFilters("");
+    }
 }
+
+

@@ -83,4 +83,20 @@ public class TextUtils {
 
   	  return new String(s);
     }
+    
+    public static boolean str2bool(final String str)
+    {
+    	if(str.equalsIgnoreCase("true"))
+    		return true;
+    	
+    	return false;
+    }
+    
+    public static String bool2str(boolean b)
+    {
+    	if(b)
+    		return "true";
+    	else
+    		return "false";
+    }
 }
