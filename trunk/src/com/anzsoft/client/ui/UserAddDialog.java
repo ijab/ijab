@@ -6,8 +6,6 @@ import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery;
 import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery.Service;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -141,7 +139,7 @@ public class UserAddDialog extends Dialog
 		{
 			public void componentSelected(ButtonEvent ce) 
 			{
-				
+				JabberApp.instance().doSearchUser();
 			}
 			
 		});
