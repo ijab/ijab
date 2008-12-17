@@ -1,6 +1,9 @@
 package com.anzsoft.client.utils;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.Node;
+import com.google.gwt.dom.client.NodeList;
 
 public class JabberXData 
 {
@@ -115,4 +118,40 @@ public class JabberXData
 
 	return html;
 	 }-*/;
+	
+	public static String genJabberXDataReply(Element form)
+	{
+		String xml = "<x xmlns='jabber:x:data' type='submit'>";
+		NodeList<Element> nodes = form.getElementsByTagName("*");
+		for(int i = 0;i < nodes.getLength();i++)
+		{
+			Element element =  nodes.getItem(i);
+			try
+			{
+				String name = element.getAttribute("name");
+				String value = element.getAttribute("value");
+				String type = element.getAttribute("type");
+				if(type == null)
+					type = "";
+				if(name == null||name.isEmpty()||value == null||value.isEmpty()||name.equals("jwchat_form_type"))
+					continue;
+				xml += "<field var='" +name + "'><value>";
+				
+				if(type.equals("checkbox"))
+				{
+					InputElement ce = (InputElement)element;
+					xml += ce.isChecked() ? "1":"0";
+				}
+				else
+					xml += value;
+				xml += "</value></field>";
+			}
+			catch(Exception ce)
+			{
+				
+			}
+		}
+		xml += "</x>";
+		return xml;
+	}
 }
