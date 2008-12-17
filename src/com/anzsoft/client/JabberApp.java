@@ -56,6 +56,7 @@ import com.anzsoft.client.ui.LoginDialog;
 import com.anzsoft.client.ui.MainWindow;
 import com.anzsoft.client.ui.RosterPanel;
 import com.anzsoft.client.ui.UserAddDialog;
+import com.anzsoft.client.ui.UserSearchDialog;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -91,10 +92,11 @@ public class JabberApp
 	
 	private Window debugWindow =  null;
 	private DebugPanel debugPanel = null;
-	final boolean Debug = false;
+	final boolean Debug = true;
 	
 	private LoginDialog loginDlg = new LoginDialog();
 	private UserAddDialog userAddDlg = null;
+	private UserSearchDialog searchDialog = null;
 	
 	static iJabConstants constants = null;
 	private RosterPanel rosterPanel = null;
@@ -549,6 +551,15 @@ public class JabberApp
 		PrefsTask task = new PrefsTask(session);
 		task.set();
 		*/
+	}
+	
+	public void doSearchUser()
+	{
+		if(searchDialog == null)
+			searchDialog = new UserSearchDialog(disco,session);
+		else
+			searchDialog.reloadServices();
+		searchDialog.show();
 	}
 
 }

@@ -28,6 +28,7 @@ public abstract class XmppTask
 			}
 			
 		};
+		session.addInfoQueryListener(queryListener);
 	}
 	
 	public abstract void take(XmppPacket packet);

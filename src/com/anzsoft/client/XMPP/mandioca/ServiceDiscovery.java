@@ -155,4 +155,27 @@ public class ServiceDiscovery
 		}
 		return services;
 	}
+	
+	public List<Service> getSearchServices()
+	{
+		List<Service> services = new ArrayList<Service>();
+		for(String jid:disco.keySet())
+		{
+			Element el = disco.get(jid);
+			if(el == null)
+				continue;
+			NodeList items = el.getElementsByTagName("feature");
+			for(int index = 0;index<items.getLength();index++)
+			{
+				Element item = (Element)items.item(index);
+				if(item.getAttribute("var").equals("jabber:iq:search"))
+				{
+					Element identity = (Element) el.getElementsByTagName("identity").item(0);
+					services.add(new Service(jid,identity.getAttribute("name")));
+					break;
+				}
+			}
+		}
+		return services;
+	}
 }
