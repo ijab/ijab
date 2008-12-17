@@ -75,4 +75,5 @@ public interface iJabConstants extends Constants
 	String MSG();
 	String Auth_Confirm();
 	String User_Search();
+	String Choose_Directory();
 }
