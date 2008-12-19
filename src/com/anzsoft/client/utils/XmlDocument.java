@@ -25,6 +25,20 @@ public class XmlDocument extends JavaScriptObject
 	 	return this.createElement(nodeName);
 	 }-*/;
 	
+	public final native Element createElementNS(final String xmlns,final String elName)
+	/*-{
+	 	var element;
+  		try {
+    		element = this.createElementNS(xmlns,elName);
+  		} catch (e) {
+    	// fallback
+    		element = this.createElement(elName);
+  		}
+  		if (element && element.getAttribute('xmlns') != xmlns) // fix opera 8.5x
+    		element.setAttribute('xmlns',xmlns);
+	 	return element;
+	 }-*/;
+	
 	public final native Node createTextNode(final String content)
 	/*-{
 		return this.createTextNode(content);
@@ -37,6 +51,6 @@ public class XmlDocument extends JavaScriptObject
 	
 	public static native XmlDocument create(final String name,final String ns)
 	/*-{
-	 	return XmlDocument.create(name,ns);
+	 	return $wnd.XmlDocument.create(name,ns);
 	 }-*/;
 }

@@ -43,7 +43,6 @@ import com.anzsoft.client.XMPP.XmppUserSettings.AuthType;
 import com.anzsoft.client.XMPP.impl.JsJacFactory;
 import com.anzsoft.client.XMPP.log.DebugPanel;
 import com.anzsoft.client.XMPP.log.GWTLoggerOutput;
-import com.anzsoft.client.XMPP.mandioca.PrefsTask;
 import com.anzsoft.client.XMPP.mandioca.RosterTask;
 import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery;
 import com.anzsoft.client.XMPP.mandioca.XmppContact;

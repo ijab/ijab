@@ -5,6 +5,7 @@ import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
 
+
 public class JabberXData 
 {
 	public static native String genJabberXDataTable(Node x)
@@ -129,18 +130,22 @@ public class JabberXData
 			try
 			{
 				String name = element.getAttribute("name");
-				String value = element.getAttribute("value");
-				String type = element.getAttribute("type");
+				if(name == null||name.isEmpty()||name.equals("jwchat_form_type"))
+					continue;
+				InputElement ie = (InputElement)element;
+				String value = ie.getValue();
+				if(value == null)
+					value = "";
+				String type = ie.getType();
 				if(type == null)
 					type = "";
-				if(name == null||name.isEmpty()||value == null||value.isEmpty()||name.equals("jwchat_form_type"))
-					continue;
+				
 				xml += "<field var='" +name + "'><value>";
 				
 				if(type.equals("checkbox"))
 				{
-					InputElement ce = (InputElement)element;
-					xml += ce.isChecked() ? "1":"0";
+					//InputElement ce = (InputElement)element;
+					xml += ie.isChecked() ? "1":"0";
 				}
 				else
 					xml += value;
