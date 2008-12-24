@@ -13,4 +13,10 @@ public class DOMHelper
 		group.appendChild(textNode);
 		return group;
 	}
+	
+	static public Element emptyTag(final XmlDocument doc,final String name)
+	{
+		Element tag = doc.createElement("name");
+		return tag;
+	}
 }

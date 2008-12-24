@@ -95,4 +95,9 @@ public interface iJabConstants extends Constants
 	String Phone();
 	String Homepage();
 	String E_Mail();
+	String Publish();
+	String Success();
+	String Failed();
+	String VCard_Success_Prompt();
+	String VCard_Failed_Prompt();
 }

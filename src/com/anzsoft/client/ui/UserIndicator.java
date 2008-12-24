@@ -105,6 +105,15 @@ public class UserIndicator extends FlexTable
 		avatarImg = new Image("images/default_avatar.png");
 		avatarImg.setWidth("32px");
 		avatarImg.setHeight("32px");
+		avatarImg.setStyleName("handler");
+		avatarImg.addClickListener(new ClickListener()
+		{
+			public void onClick(Widget sender)
+			{
+				JabberApp.instance().showInfoSelf();
+			}
+			
+		});
 		
 		nickName = new Label(nick);
 		nickName.setDirection(Direction.LTR);

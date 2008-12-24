@@ -2,15 +2,23 @@ package com.anzsoft.client.ui;
 
 import com.anzsoft.client.JabberApp;
 import com.anzsoft.client.XMPP.XmppID;
+import com.anzsoft.client.XMPP.XmppPacket;
+import com.anzsoft.client.XMPP.XmppPacketListener;
+import com.anzsoft.client.XMPP.XmppQuery;
 import com.anzsoft.client.XMPP.mandioca.VCardListener;
 import com.anzsoft.client.XMPP.mandioca.XmppVCard;
 import com.anzsoft.client.XMPP.mandioca.XmppVCardFactory;
 import com.anzsoft.client.XMPP.mandioca.XmppVCard.Address;
+import com.anzsoft.client.XMPP.mandioca.XmppVCard.Email;
+import com.anzsoft.client.XMPP.mandioca.XmppVCard.Org;
+import com.anzsoft.client.XMPP.mandioca.XmppVCard.Phone;
+import com.anzsoft.client.utils.TextUtils;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -25,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.layout.ColumnLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.ImageElement;
 import com.google.gwt.user.client.ui.Image;
 
@@ -54,6 +63,9 @@ public class InfoDialog extends Dialog
 	
 	//About panel
 	private TextArea aboutTextArea;  
+	
+	private Button publishButton;
+	private XmppVCard vcard;
 	public InfoDialog()
 	{
 		initUI();
@@ -112,8 +124,56 @@ public class InfoDialog extends Dialog
 			}
 	    	
 	    });
+	    
+	    publishButton = new Button(JabberApp.getConstants().Publish());
+	    publishButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+	    {
+			public void componentSelected(ButtonEvent ce) 
+			{
+				publish();
+			}
+	    	
+	    });
+	    publishButton.hide();
+		publishButton.setEnabled(false);
+		buttonBar.add(publishButton);
 	    buttonBar.add(closeButton);
 	    setButtonBar(buttonBar);
+	}
+	
+	/**
+	 * 
+	 */
+	private void publish()
+	{
+		publishButton.setEnabled(false);
+		final XmppVCard v = makeVCard();
+		XmppQuery iq = JabberApp.instance().getSession().getFactory().createQuery();
+		iq.setIQ("", XmppQuery.TYPE_SET, TextUtils.genUniqueId());
+		Element vcardEl = v.toXml(iq.getDoc());
+		iq.getNode().appendChild(vcardEl);
+		
+		JabberApp.instance().getSession().send(iq, new XmppPacketListener()
+		{
+			public void onPacketReceived(XmppPacket packet) 
+			{
+				publishButton.setEnabled(true);
+				if(packet.getType().equals("result"))
+				{
+					XmppVCardFactory.instance().set(JabberApp.instance().getJid(), v);
+					MessageBox.alert(JabberApp.getConstants().Success(), JabberApp.getConstants().VCard_Success_Prompt(),null);
+				}
+				else
+				{
+					MessageBox.alert(JabberApp.getConstants().Failed(), JabberApp.getConstants().VCard_Failed_Prompt(),null);
+				}
+			}
+
+			public void onPacketSent(XmppPacket packet) 
+			{
+			}
+			
+		});
 	}
 	
 	private FormPanel createAboutPanel()
@@ -262,10 +322,21 @@ public class InfoDialog extends Dialog
 		{
 			setData(vcard);
 		}
+		if(jid.toStringNoResource().equals(JabberApp.instance().getJid().toStringNoResource()))
+		{
+			publishButton.show();
+			publishButton.setEnabled(true);
+		}
+		else
+		{
+			publishButton.hide();
+			publishButton.setEnabled(false);
+		}
 	}
 	
 	private void setData (final XmppVCard vcard)
 	{
+		this.vcard = vcard;
 		fullNameField.setValue(vcard.fullName());
 		nickNameField.setValue(vcard.nickName());
 		birthdayField.setValue(vcard.bday());
@@ -360,11 +431,76 @@ public class InfoDialog extends Dialog
 		streetField.setEnabled(enabled);
 		cityField.setEnabled(enabled);
 		stateField.setEnabled(enabled);
-		stateField.setEnabled(enabled);
 		pCodeField.setEnabled(enabled);
 		countryField.setEnabled(enabled);
 		
 		//About panel
 		aboutTextArea.setEnabled(enabled);
+	}
+	
+	private XmppVCard makeVCard()
+	{
+		XmppVCard v = new XmppVCard();
+		v.setFullName(fullNameField.getValue());
+		v.setNickName(nickNameField.getValue());
+		v.setBday(birthdayField.getValue());
+		
+		if(this.vcard != null&&this.vcard.photo()!=null&&!this.vcard.photo().isEmpty())
+		{
+			v.setPhoto(this.vcard.photo());
+		}
+		
+		if(emailField.getValue()!=null&&!emailField.getValue().isEmpty())
+		{
+			Email email = v.newEmail();
+			email.internet = true;
+			email.userid = emailField.getValue();
+			
+			v.emailList.add(email);
+		}
+		
+		v.setUrl(homepageField.getValue());
+		
+		if(phoneField.getValue()!=null&&!phoneField.getValue().isEmpty())
+		{
+			Phone p = v.newPhone();
+			p.home = true;
+			p.voice = true;
+			p.number = phoneField.getValue();
+			
+			v.phoneList.add(p);
+		}
+		
+		if((streetField.getValue()!=null&&!streetField.getValue().isEmpty())||
+				(cityField.getValue()!=null&&!cityField.getValue().isEmpty())||
+				(stateField.getValue()!=null&&!stateField.getValue().isEmpty())||
+				(pCodeField.getValue()!=null&&!pCodeField.getValue().isEmpty())||
+				(countryField.getValue()!=null&&!countryField.getValue().isEmpty()))
+		{
+			Address addr = v.newAddress();
+			addr.home = true;
+			addr.street = streetField.getValue();
+			addr.locality = cityField.getValue();
+			addr.region = stateField.getValue();
+			addr.pcode = pCodeField.getValue();
+			addr.country = countryField.getValue();
+			
+			v.addressList.add(addr);
+		}
+		
+		Org org = v.newOrg();
+		org.name = companyField.getValue();
+		
+		if(departmentField.getValue()!=null&&!departmentField.getValue().isEmpty())
+		{
+			org.unit.add(departmentField.getValue());
+		}
+		v.setOrg(org);
+		
+		
+		v.setTitle(positionField.getValue());
+		v.setRole(roleField.getValue());
+		v.setDesc(aboutTextArea.getValue());
+		return v;
 	}
 }
