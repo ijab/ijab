@@ -4,23 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.anzsoft.client.JabberApp;
+import com.anzsoft.client.XMPP.XmppID;
 import com.anzsoft.client.XMPP.XmppPacket;
 import com.anzsoft.client.XMPP.XmppPacketListener;
 import com.anzsoft.client.XMPP.XmppQuery;
 import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery;
 import com.anzsoft.client.XMPP.mandioca.XmppSession;
-import com.anzsoft.client.XMPP.mandioca.XmppTask;
 import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery.Service;
 import com.anzsoft.client.utils.JabberXData;
 import com.anzsoft.client.utils.TextUtils;
 import com.anzsoft.client.utils.XmlDocument;
+import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -44,64 +48,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 public class UserSearchDialog extends Dialog
 {
-	public interface SearchListener
-	{
-		public void onResult(XmppPacket packet);
-	}
-	
-	//Search Task
-	public class UserSearchTask extends XmppTask 
-	{
-		private SearchListener listener = null;
-		public UserSearchTask(XmppSession session)
-		{
-			super(session);
-		}
-
-		public void take(XmppPacket packet) 
-		{
-			if(listener != null)
-				listener.onResult(packet);
-		}
-		
-		public void searchUser(final String service,final XmlDocument xmlDoc,final SearchListener listener)
-		{
-			this.listener = listener;
-			XmppQuery iq = session.getFactory().createQuery();
-			iq.setIQ(service, XmppQuery.TYPE_SET, id());
-			Element query = iq.setQuery("jabber:iq:search");
-			
-			NodeList<Node> nodeList = xmlDoc.documentElement().getChildNodes();
-			for(int index = 0;index < nodeList.getLength();index++)
-			{
-				query.appendChild(xmlDoc.firstChild().getChildNodes().getItem(index).cloneNode(true));
-			}
-			//query.appendChild(xmlDoc.firstChild().cloneNode(true));
-			send(iq);
-		}
-		
-		public void searchUser(final String service,final SearchListener listener)
-		{
-			this.listener = listener;
-			XmppQuery iq = session.getFactory().createQuery();
-			iq.setIQ(service+"/users", XmppQuery.TYPE_GET, id());
-			iq.setQuery("jabber:iq:browse");
-			send(iq);
-		}
-				
-		public void getSearchForm(final String service,final SearchListener listener)
-		{
-			this.listener = listener;
-			XmppQuery iq = session.getFactory().createQuery();
-			iq.setIQ(service, XmppQuery.TYPE_GET, id());
-			iq.setQuery("jabber:iq:search");
-			send(iq);
-		}
-
-	}
-	//Task end
-	
-	
 	//data model
 	public class User extends BaseModelData
 	{
@@ -124,13 +70,11 @@ public class UserSearchDialog extends Dialog
 	
 	private ListStore<User> store = null;
 	private List<ColumnConfig> columnConfigs = null;
-	
-	private UserSearchTask searchTask = null;
+	private String currentJid = null;
 	
 	public UserSearchDialog(final ServiceDiscovery disco,final XmppSession session)
 	{
 		this.session = session;
-		searchTask = new UserSearchTask(this.session);
 		this.serviceDisco = disco;
 		initUI();
 	}
@@ -228,14 +172,44 @@ public class UserSearchDialog extends Dialog
 	    //resultGrid.setAutoHeight(true);
 	    resultGrid.setAutoExpandColumn("nickname");
 	    resultGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+	    resultGrid.addListener(Events.RowDoubleClick , new Listener<GridEvent>()
+		{
+	    	public void handleEvent(GridEvent be) 
+	    	{
+	    		List<User> users =  store.getModels();
+	    		User user = users.get(be.rowIndex);
+	    		String jid = user.get("jid");
+	    		if(jid != null&&!jid.isEmpty())
+	    			JabberApp.instance().showInfo(XmppID.parseId(jid));
+	    	}
+		});
+	    
+	    resultGrid.getSelectionModel().addListener(Events.SelectionChange, new Listener<SelectionEvent<User>>()
+		{
+			public void handleEvent(SelectionEvent<User> be) 
+			{
+				if(!be.selection.isEmpty())
+					currentJid = be.selection.get(0).get("jid");
+				else
+					currentJid = null;
+			}
+	    	
+		});
+	    
 	    resultPanel.add(resultGrid);
 	    
+	    
+	   
 	    
 	    Button addButton = new Button(JabberApp.getConstants().add());
 	    addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
 	    {
 			public void componentSelected(ButtonEvent ce) 
 			{
+				if(currentJid == null)
+					return;
+	    		if(currentJid != null&&!currentJid.isEmpty())
+	    			JabberApp.instance().doAddUser(XmppID.parseId(currentJid));
 			}
 	    });
 	    
@@ -244,6 +218,10 @@ public class UserSearchDialog extends Dialog
 	    {
 			public void componentSelected(ButtonEvent ce) 
 			{
+				if(currentJid == null)
+					return;
+	    		if(currentJid != null&&!currentJid.isEmpty())
+	    			JabberApp.instance().showInfo(XmppID.parseId(currentJid));
 			}
 	    });
 	    
@@ -390,11 +368,18 @@ public class UserSearchDialog extends Dialog
 		String service = serviceField.getValue().getJid();
 		if(searchstring.isEmpty())
 		{
-			searchTask.searchUser(service, new SearchListener()
+			XmppQuery iq = session.getFactory().createQuery();
+			iq.setIQ(service+"/users", XmppQuery.TYPE_GET, TextUtils.genUniqueId());
+			iq.setQuery("jabber:iq:browse");
+			session.send(iq,new XmppPacketListener()
 			{
-				public void onResult(XmppPacket packet) 
+				public void onPacketReceived(XmppPacket packet) 
 				{
 					onSearchResult(packet);
+				}
+				public void onPacketSent(XmppPacket packet) 
+				{
+					
 				}
 				
 			});

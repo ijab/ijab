@@ -43,7 +43,7 @@ public class UserAddDialog extends Dialog
 		setHeading(JabberApp.getConstants().addUser());
 		setModal(false);
 		setBodyBorder(true);
-		setInsetBorder(true);
+		//setInsetBorder(true);
 		setBodyStyle("padding: 0px;background: none");
 		setWidth(350);
 		setResizable(false);
@@ -179,5 +179,10 @@ public class UserAddDialog extends Dialog
 		jidField.setValue("");
 		serviceField.setValue(serviceDisco.getGateWays().get(0));
 		close();		
+	}
+	
+	public void setJid(final XmppID jid)
+	{
+		jidField.setValue(jid.toString());
 	}
 }

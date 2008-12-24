@@ -19,28 +19,43 @@
 */
 package com.anzsoft.client.XMPP.log;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.Widget;
 
 
 public class DebugPanel extends LayoutContainer implements LoggerOuput {
     private final TextArea area;
+    private ButtonBar buttonBar;
 
-    public DebugPanel() {
+    public DebugPanel()
+    {
     	setLayout(new FitLayout());
-	area = new TextArea();
-	//area.setWidth("500");
-	//area.setHeight("500");
-	add(area);
-	add(new Button("clear", new ClickListener () {
-	    public void onClick(final Widget sender) {
-		area.setText("");
-	    }
-	}));
+    	area = new TextArea();
+    	//area.setWidth("500");
+    	//area.setHeight("500");
+    	add(area);
+    	buttonBar = new ButtonBar();
+    	Button clearButton = new Button("Clear");
+    	clearButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+		{
+    		public void componentSelected(ButtonEvent ce) 
+    		{
+    			area.setText("");
+    		}
+
+		});
+    	buttonBar.add(clearButton);
+    	//add(buttonBar);
+    }
+    
+    public ButtonBar getBar()
+    {
+    	return buttonBar;
     }
 
     public void log(final String message) {

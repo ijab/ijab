@@ -33,7 +33,6 @@ import com.anzsoft.client.XMPP.XmppInfoQueryListener;
 import com.anzsoft.client.XMPP.XmppPacket;
 import com.anzsoft.client.XMPP.XmppQuery;
 import com.anzsoft.client.utils.XMLHelper;
-import com.google.gwt.dom.client.Node;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;

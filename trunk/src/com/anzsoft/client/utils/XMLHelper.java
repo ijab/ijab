@@ -48,6 +48,15 @@ public class XMLHelper
 		return null;
 	}
 	
+	public static boolean hasSubTag(final Element e,final String name)
+	{
+		Element find = findSubTag(e,name);
+		if(find!=null)
+			return true;
+		else
+			return false;
+	}
+	
 	public static String queryNS(final Element e)
 	{
 		Element queryElement = queryTag(e);
@@ -67,5 +76,30 @@ public class XMLHelper
 			groups.add(item.getFirstChild().getNodeValue());
 		}
 		return groups;
+	}
+	
+	public static String getTagContent(final Element e)
+	{
+		String ret = "";
+		try
+		{
+			ret = e.getFirstChild().getNodeValue();
+		}
+		catch(Exception ce)
+		{
+			
+		}
+		if(ret == null)
+			return "";
+		return ret;
+	}
+	
+	public static String subTagText(final Element e,final String tagName)
+	{
+		String ret = "";
+		Element subTag = findSubTag(e,tagName);
+		if(subTag != null)
+			ret = getTagContent(subTag);
+		return ret;
 	}
 }

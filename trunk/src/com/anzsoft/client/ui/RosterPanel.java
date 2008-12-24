@@ -29,6 +29,7 @@ import com.anzsoft.client.JabberApp;
 import com.anzsoft.client.iJabPrefs;
 import com.anzsoft.client.utils.ChatIcons;
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModel;
@@ -68,8 +69,11 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Image;
 
 import com.anzsoft.client.XMPP.XmppID;
+import com.anzsoft.client.XMPP.mandioca.VCardListener;
 import com.anzsoft.client.XMPP.mandioca.XmppContact;
 import com.anzsoft.client.XMPP.mandioca.XmppContactStatus;
+import com.anzsoft.client.XMPP.mandioca.XmppVCard;
+import com.anzsoft.client.XMPP.mandioca.XmppVCardFactory;
 
 
 public class RosterPanel extends ContentPanel
@@ -138,6 +142,34 @@ public class RosterPanel extends ContentPanel
     	setLayout(new FitLayout());
     	createGrid(emptyText);
     	setTopComponent(createFilterToolBar());
+    	
+    	XmppVCardFactory.instance().addVCardListener(new VCardListener()
+    	{
+			public void onVCard(XmppID jid, XmppVCard vcard) 
+			{
+				if(iJabPrefs.instance().showOnlineOnly)
+		    		store.clearFilters();
+		    	final ContactData dataToUpdate = store.findModel(JID, jid.toStringNoResource());
+		    	if(dataToUpdate != null)
+		    	{
+			    	if(!vcard.nickName().isEmpty())
+			    		dataToUpdate.set(ALIAS, vcard.nickName());
+			    	else if(!vcard.fullName().isEmpty())
+			    		dataToUpdate.set(ALIAS, vcard.fullName());
+			    	
+			    	if(!vcard.photo().isEmpty()&&!GXT.isIE)
+			    		dataToUpdate.set(IMG, "data:image;base64,"+vcard.photo());
+			    	else
+			    		dataToUpdate.set(IMG,"images/default_avatar.png");
+			    	
+			    	store.update(dataToUpdate);
+			    	doLayoutIfNeeded();
+		    	}
+		    	if(iJabPrefs.instance().showOnlineOnly)
+		    		store.applyFilters("");
+			}
+    		
+    	});
     }
     
     public void setRoster(final Map<String,XmppContact> contacts)
@@ -383,7 +415,8 @@ public class RosterPanel extends ContentPanel
     			Params p = new Params();
     			String img = model.get(IMG);
     			p.add(img);
-    			return Format.substitute("<div style=\"direction: ltr; background-repeat: no-repeat; background-position: left center; background-image: url({0}); background-color: transparent; cursor: pointer; visibility: visible; width:32px;height:32px;\"/>", p);
+    			return Format.substitute("<img src=\"{0}\" style=\"width=32px;height:32px;cursor: pointer;\" />",p);
+    			//return Format.substitute("<div style=\"direction: ltr; background-repeat: no-repeat; background-position: left center; background-image: url({0}); background-color: transparent; cursor: pointer; visibility: visible; width:32px;height:32px;\"/>", p);
     		}
 
     	});
@@ -548,9 +581,14 @@ public class RosterPanel extends ContentPanel
     	infoItem = new MenuItem(JabberApp.getConstants().userInfo());
     	infoItem.addListener(Events.Select, new Listener<MenuEvent>()
     	{
-			public void handleEvent(MenuEvent me) {
-				// TODO Auto-generated method stub
-				
+			public void handleEvent(MenuEvent me) 
+			{
+				List<ContactData> datas = store.getModels();
+				ContactData data = datas.get(currentItem);
+				if(data == null)
+					return;
+				String jid = data.get(JID);
+				JabberApp.instance().showInfo(XmppID.parseId(jid));
 			}
     		
     	});

@@ -219,3 +219,8 @@ img {
 {
 	background-image: url(images/icon_padlock.png) !important;
 }
+
+.userInfo-Icon
+{
+	background-image: url(images/icons/vcard.png) !important;
+}
