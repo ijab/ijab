@@ -549,6 +549,11 @@ public class JabberApp
 		task.remove(id);
 	}
 	
+	public void showInfoSelf()
+	{
+		showInfo(getJid());
+	}
+	
 	public void showInfo(final XmppID id)
 	{
 		if(infoDlg == null)
@@ -633,6 +638,7 @@ public class JabberApp
 	
 	public XmppVCard getSelfVCard()
 	{
-		return vcard;
+		return XmppVCardFactory.instance().get(getJid(), null);
+		//return vcard;
 	}
 }

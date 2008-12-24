@@ -224,3 +224,8 @@ img {
 {
 	background-image: url(images/icons/vcard.png) !important;
 }
+
+.handler
+{
+	cursor: pointer;
+}

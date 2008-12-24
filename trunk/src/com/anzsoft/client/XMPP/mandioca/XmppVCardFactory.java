@@ -24,6 +24,12 @@ public class XmppVCardFactory
 		
 	}
 	
+	public void set(final XmppID id,final XmppVCard vcard)
+	{
+		vcards.put(id.toStringNoResource(), vcard);
+		fireOnVCard(id,vcard);
+	}
+	
 	public XmppVCard get(final XmppID id,final VCardListener listener)
 	{
 		if(vcards.containsKey(id.toStringNoResource()))
