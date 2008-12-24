@@ -27,11 +27,15 @@ import com.allen_sauer.gwt.voices.client.Sound;
 import com.allen_sauer.gwt.voices.client.SoundController;
 import com.anzsoft.client.JabberApp;
 import com.anzsoft.client.XMPP.XmppID;
+import com.anzsoft.client.XMPP.mandioca.VCardListener;
 import com.anzsoft.client.XMPP.mandioca.XmppChat;
+import com.anzsoft.client.XMPP.mandioca.XmppVCard;
+import com.anzsoft.client.XMPP.mandioca.XmppVCardFactory;
 import com.anzsoft.client.utils.ChatTextFormatter;
 import com.anzsoft.client.utils.emotions.EmoticonPaletteListener;
 import com.anzsoft.client.utils.emotions.EmoticonPalettePanel;
 import com.extjs.gxt.ui.client.Events;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -136,6 +140,7 @@ public class ChatWindow extends Window
 	private XmppChat chat;
 	private boolean lastIsLocal = false;
 	private String lastMsgID = null;
+	private XmppVCard vcard = null;
 	
 	private ChatWindow(final String jid,XmppChat chat)
 	{
@@ -188,6 +193,15 @@ public class ChatWindow extends Window
 			
 		});
 		input.focus();
+		
+		XmppVCardFactory.instance().get(XmppID.parseId(this.jid),new VCardListener()
+		{
+			public void onVCard(XmppID jid, XmppVCard in_vcard) 
+			{
+				vcard = in_vcard;
+			}
+			
+		});
 	}
 	
 	private InputContainer createBottomWidget()
@@ -298,13 +312,13 @@ public class ChatWindow extends Window
 				return;
 			}
 		}
-		String messageString = createMessage(userAlias,message).getString();
+		String messageString = createMessage(userAlias,message,local).getString();
 		Html messageHtml = new Html(messageString);
 		addWidget(messageHtml);
 		lastIsLocal = local;
 	}
 	
-	private DivElement createMessage(final String user,final String message)
+	private DivElement createMessage(final String user,final String message,boolean local)
 	{
 		Element element = DOM.createDiv();
 		DivElement messageDiv = DivElement.as(element);
@@ -342,7 +356,15 @@ public class ChatWindow extends Window
 		tdElement.appendChild(imageElement);
 		imageElement.setAttribute("height", "45");
 		imageElement.setAttribute("widht", "45");
-		imageElement.setSrc(JabberApp.instance().getAvatarUrl(jid));
+		XmppVCard vc = null;
+		if(local)
+			vc = JabberApp.instance().getSelfVCard();
+		else
+			vc = vcard;
+		if(!GXT.isIE&&vc != null&&!vc.photo().isEmpty())
+			imageElement.setSrc("data:image;base64,"+vc.photo());
+		else
+			imageElement.setSrc(JabberApp.instance().getAvatarUrl(jid));
 		
 		tdElement = DOM.createTD();
 		tdElement.setInnerHTML("&nbsp&nbsp");
@@ -417,7 +439,16 @@ public class ChatWindow extends Window
 				 "sound/im_send.wav");
 		 sound.play();
 		 
-		 addMessage(XmppID.parseId(JabberApp.instance().getSession().getUser().getID()).toStringNoResource(),inputText,true);
+		 XmppVCard selfv = JabberApp.instance().getSelfVCard();
+		 String nick = XmppID.parseId(JabberApp.instance().getSession().getUser().getID()).toStringNoResource();
+		 if(selfv!=null)
+		 {
+			 if(!selfv.nickName().isEmpty())
+				 nick = selfv.nickName();
+			 else if(!selfv.fullName().isEmpty())
+				 nick = selfv.fullName();
+		 }
+		 addMessage(nick,inputText,true);
 		 chat.sendMessage(inputText);
 		 setInputText("");
 		 input.focus();

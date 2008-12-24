@@ -45,12 +45,16 @@ import com.anzsoft.client.XMPP.log.DebugPanel;
 import com.anzsoft.client.XMPP.log.GWTLoggerOutput;
 import com.anzsoft.client.XMPP.mandioca.RosterTask;
 import com.anzsoft.client.XMPP.mandioca.ServiceDiscovery;
+import com.anzsoft.client.XMPP.mandioca.VCardListener;
 import com.anzsoft.client.XMPP.mandioca.XmppContact;
 import com.anzsoft.client.XMPP.mandioca.XmppContactStatus;
 import com.anzsoft.client.XMPP.mandioca.XmppPushRoster;
 import com.anzsoft.client.XMPP.mandioca.XmppRosterListener;
 import com.anzsoft.client.XMPP.mandioca.XmppSession;
+import com.anzsoft.client.XMPP.mandioca.XmppVCard;
+import com.anzsoft.client.XMPP.mandioca.XmppVCardFactory;
 import com.anzsoft.client.ui.ChatWindow;
+import com.anzsoft.client.ui.InfoDialog;
 import com.anzsoft.client.ui.LoginDialog;
 import com.anzsoft.client.ui.MainWindow;
 import com.anzsoft.client.ui.RosterPanel;
@@ -59,6 +63,7 @@ import com.anzsoft.client.ui.UserSearchDialog;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
@@ -91,17 +96,19 @@ public class JabberApp
 	
 	private Window debugWindow =  null;
 	private DebugPanel debugPanel = null;
-	final boolean Debug = true;
+	private boolean Debug = false;
 	
 	private LoginDialog loginDlg = new LoginDialog();
 	private UserAddDialog userAddDlg = null;
 	private UserSearchDialog searchDialog = null;
+	private InfoDialog infoDlg = null;
 	
 	static iJabConstants constants = null;
 	private RosterPanel rosterPanel = null;
 	private MainWindow mainWindow = null;
 	private Map<String,XmppContact> contactDatas = null; 
 	private HashMap<String,XmppContactStatus> statusMap = new HashMap<String,XmppContactStatus>();
+	private XmppVCard vcard = null;
 	
 	public static JabberApp instance()
 	{
@@ -122,6 +129,7 @@ public class JabberApp
 		this.@com.anzsoft.client.JabberApp::port = $wnd.port;
 		this.@com.anzsoft.client.JabberApp::domain = $wnd.domain;
 		this.@com.anzsoft.client.JabberApp::authType = $wnd.authType;
+		this.@com.anzsoft.client.JabberApp::Debug = $wnd.debug;
 	}-*/;
 
 	
@@ -141,6 +149,9 @@ public class JabberApp
 	
 	public void doLogin()
 	{		
+		XmppVCardFactory.instance().clear();
+		vcard = null;
+		ChatWindow.clear();
 		if(userAddDlg != null)
 		{
 			userAddDlg.close();
@@ -196,6 +207,7 @@ public class JabberApp
 	
 	public void logout()
 	{
+		cleanDialog();
 		savePrefs();
 		iJabPrefs.instance().deinit();
 		ChatWindow.clear();
@@ -244,6 +256,7 @@ public class JabberApp
 		
 		debugPanel = new DebugPanel();
 		debugWindow.add(debugPanel);
+		debugWindow.setButtonBar(debugPanel.getBar());
 		
 		debugWindow.setWidth(500);
 		debugWindow.setHeight(300);
@@ -288,6 +301,7 @@ public class JabberApp
 			public void onError(final XmppError error) 
 			{
 				System.out.println("onError...");
+				cleanDialog();
 				if(!silent)
 					doLogin();
 		    }
@@ -416,6 +430,14 @@ public class JabberApp
 						loginListener.onLogined();
 				}
 				disco.getDiscoItems();
+				XmppVCardFactory.instance().get(getJid(), new VCardListener()
+				{
+					public void onVCard(XmppID jid, XmppVCard in_vcard) 
+					{
+						vcard = in_vcard;
+					}
+					
+				});
 			}			
 		};
 		return listener;
@@ -501,6 +523,17 @@ public class JabberApp
 		session.getUser().sendSubScription(id, "unsubscribed", "","");
 	}
 	
+	public void doAddUser(final XmppID id)
+	{
+		if(userAddDlg == null)
+			userAddDlg = new UserAddDialog(disco);
+		else
+			userAddDlg.reloadServices();
+		userAddDlg.show();
+		WindowManager.get().bringToFront(userAddDlg);
+		userAddDlg.setJid(id);
+	}
+	
 	public void doAddUser()
 	{
 		if(userAddDlg == null)
@@ -514,6 +547,17 @@ public class JabberApp
 	{
 		RosterTask task = new RosterTask(session);
 		task.remove(id);
+	}
+	
+	public void showInfo(final XmppID id)
+	{
+		if(infoDlg == null)
+			infoDlg = new InfoDialog();
+		
+		infoDlg.clear();
+		infoDlg.show();
+		WindowManager.get().bringToFront(infoDlg);
+		infoDlg.getInfo(id);
 	}
 	
 	public void renameUser(final XmppID id,final String newName)
@@ -560,5 +604,35 @@ public class JabberApp
 			searchDialog.reloadServices();
 		searchDialog.show();
 	}
-
+	
+	private void cleanDialog()
+	{
+		if(userAddDlg != null)
+		{
+			userAddDlg.close();
+			userAddDlg = null;
+		}
+		
+		if(searchDialog != null)
+		{
+			searchDialog.close();
+			searchDialog = null;
+		}
+		
+		if(infoDlg != null)
+		{
+			infoDlg.close();
+			infoDlg = null;
+		}
+	}
+	
+	public XmppID getJid()
+	{
+		return XmppID.parseId(session.getUser().getID());
+	}
+	
+	public XmppVCard getSelfVCard()
+	{
+		return vcard;
+	}
 }

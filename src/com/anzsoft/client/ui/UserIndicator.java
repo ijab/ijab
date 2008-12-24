@@ -24,16 +24,22 @@ package com.anzsoft.client.ui;
 import com.anzsoft.client.JabberApp;
 import com.anzsoft.client.iJabConstants;
 import com.anzsoft.client.XMPP.PresenceShow;
+import com.anzsoft.client.XMPP.XmppID;
 import com.anzsoft.client.XMPP.XmppPresence;
+import com.anzsoft.client.XMPP.mandioca.VCardListener;
 import com.anzsoft.client.XMPP.mandioca.XmppContactStatus;
 import com.anzsoft.client.XMPP.mandioca.XmppSession;
+import com.anzsoft.client.XMPP.mandioca.XmppVCard;
+import com.anzsoft.client.XMPP.mandioca.XmppVCardFactory;
 import com.anzsoft.client.XMPP.mandioca.XmppUser.XmppUserListener;
 import com.anzsoft.client.utils.ChatIcons;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.dom.client.ImageElement;
 import com.google.gwt.i18n.client.HasDirection.Direction;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.ClickListener;
@@ -213,6 +219,29 @@ public class UserIndicator extends FlexTable
 			public void onLostFocus(Widget sender) 
 			{
 				doneChangeStatusString();
+			}
+			
+		});
+		
+		XmppVCardFactory.instance().addVCardListener(new VCardListener()
+		{
+			public void onVCard(XmppID jid, XmppVCard vcard) 
+			{
+				if(jid.toStringNoResource().equalsIgnoreCase(JabberApp.instance().getJid().toStringNoResource()))
+				{
+					if(!vcard.nickName().isEmpty())
+						nickName.setText(vcard.fullName());
+					else if(!vcard.fullName().isEmpty())
+						nickName.setText(vcard.fullName());
+					String photoData = vcard.photo();
+					if(!photoData.isEmpty()&&!GXT.isIE)
+					{
+						ImageElement imgEl = avatarImg.getElement().cast();
+						imgEl.removeAttribute("src");
+						imgEl.setSrc("data:image;base64,"+photoData);
+					}
+					
+				}
 			}
 			
 		});

@@ -76,4 +76,23 @@ public interface iJabConstants extends Constants
 	String Auth_Confirm();
 	String User_Search();
 	String Choose_Directory();
+	String General();
+	String Work();
+	String Location();
+	String About();
+	String Street();
+	String City();
+	String State();
+	String Postal_Code();
+	String Country();
+	String Company();
+	String Department();
+	String Position();
+	String Role();
+	String Full_Name();
+	String Nickname();
+	String Birthday();
+	String Phone();
+	String Homepage();
+	String E_Mail();
 }
