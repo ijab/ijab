@@ -19,18 +19,33 @@ import com.anzsoft.client.utils.emotions.EmoticonPaletteListener;
 import com.anzsoft.client.utils.emotions.EmoticonPalettePanel;
 import com.extjs.gxt.ui.client.Events;
 import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.WindowEvent;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Format;
+import com.extjs.gxt.ui.client.util.Margins;
+import com.extjs.gxt.ui.client.util.Params;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.toolbar.AdapterToolItem;
@@ -46,6 +61,84 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 
 public class RoomChatWindow extends Window
 {
+	public class Buddy extends BaseModelData
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public Buddy()
+		{
+			
+		}
+		
+		public Buddy(final String nick,final String jid,final String affiliation,final String role)
+		{
+			setNick(nick);
+			setJid(jid);
+			setAffiliation(affiliation);
+			setRole(role);
+		}
+		
+		public void setRole(final String role)
+		{
+			set("role",role);
+		}
+		
+		public void setStatus(final String status)
+		{
+			set("status",status);
+		}
+		
+		public void setAffiliation(final String affiliation)
+		{
+			set("affiliation",affiliation);
+		}
+		
+		public void setNick(final String nick)
+		{
+			set("nick",nick);
+		}
+		
+		public void setJid(final String jid)
+		{
+			set("jid",jid);
+		}
+		
+		public String jid()
+		{
+			return get("jid");
+		}
+		
+		public String nick()
+		{
+			return get("nick");
+		}
+		
+		public String affiliation()
+		{
+			return get("affiliation");
+		}
+		
+		public String role()
+		{
+			return get("role");
+		}
+		
+		public String status()
+		{
+			return get("status");
+		}
+		
+	}
+	
+	
+	
+	
+	
+	
+	
 	static private List<RoomChatWindow> roomWindows = new  ArrayList<RoomChatWindow>();
 	static public RoomChatWindow openRoom(final XmppID id,final String nickName)
 	{
@@ -120,17 +213,44 @@ public class RoomChatWindow extends Window
 	private String jid;
 	private XmppRoom room;
 	
+	//for roster
+	ListStore<Buddy> store;
+	
 	private RoomChatWindow(final String roomJid,final XmppRoom room)
 	{
 		this.jid = roomJid;
 		this.room = room;
 		
-		setLayout(new FitLayout());
-		
+		setLayout(new BorderLayout());
 		setClosable(true);
-		//setCloseAction(CloseAction.HIDE);
 		setCloseAction(CloseAction.HIDE);
+		setWidth(550);
+		setHeight(300);
+		updateCaption();
+		setMinimizable(false);
+		setCollapsible(true);
+		setAnimCollapse(true);
+		setMaximizable(true);
+		setFocusWidget(input);
 		
+		ContentPanel center = new ContentPanel();
+		center.setFrame(false);
+		center.setBodyBorder(false);
+		center.setHeaderVisible(false);
+		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER,350);  
+	    centerData.setMargins(new Margins(0));
+	    
+		ContentPanel east = new ContentPanel();
+		east.setLayout(new FitLayout());
+		east.setHeading("Buddys");
+		east.setFrame(false);
+		east.setBodyBorder(false);
+		BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST, 200);  
+	    eastData.setSplit(true);  
+	    //eastData.setCollapsible(true);  
+	    eastData.setMargins(new Margins(5)); 
+		
+		//the center widgets
 		childPanel = new ContentPanel();
 		childPanel.addStyleName("message_view");
 		childPanel.setHeaderVisible(false);
@@ -139,17 +259,14 @@ public class RoomChatWindow extends Window
 		childPanel.setHeight("100%");
 		childPanel.setScrollMode(Scroll.AUTO);
 		
-		add(childPanel);
-				
-		setBottomComponent(createBottomWidget());
-		setWidth(400);
-		setHeight(300);
-		updateCaption();
-		setMinimizable(false);
-		setCollapsible(true);
-		setAnimCollapse(true);
-		setMaximizable(true);
-		setFocusWidget(input);
+		center.add(childPanel);
+		center.setBottomComponent(createBottomWidget());
+		
+		//the east widgets
+		east.add(createRosterWidget());
+		
+		add(center, centerData); 
+		add(east, eastData); 
 		
 		this.addListener(Events.Show, new Listener<WindowEvent>()
 		{
@@ -190,17 +307,89 @@ public class RoomChatWindow extends Window
 		{
 			public void onUserEntered(String alias, String status) 
 			{
-				
+				Buddy buddy = new Buddy();
+				buddy.setNick(alias);
+				buddy.setStatus(status);		
+				store.add(buddy);
 			}
 
 			public void onUserLeft(String alias) 
 			{
-				
+				Buddy buddy = store.findModel("nick",alias);
+				if(buddy != null)
+					store.remove(buddy);
 			}
 			
 		});
 		
 		room.join(JabberApp.instance().getSession().getUser());
+	}
+	
+	private Grid<Buddy> createRosterWidget()
+	{
+		//create the grid to show the roster
+		List<ColumnConfig> columnConfigs = new ArrayList<ColumnConfig>(); 
+		
+		ColumnConfig column = new ColumnConfig();  
+		column.setId("status_icon");
+		column.setWidth(20);
+		column.setRenderer(new GridCellRenderer<Buddy>()
+    	{
+ 			public String render(Buddy model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<Buddy> store) 
+			{
+				Params p = new Params();
+    			p.add("<img src=\"images/icons/fam/user.gif\" />");
+    			return Format.substitute("{0}", p);
+			}
+
+    	});
+		column.setFixed(true);
+		columnConfigs.add(column);
+		
+		column = new ColumnConfig("nick","Nick",32);  
+		column.setRenderer(new GridCellRenderer<Buddy>()
+    	{
+			public String render(Buddy model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<Buddy> store) 
+			{
+				Params p = new Params();
+    			p.add(model.get("nick"));
+    			return Format.substitute("<span style=\"vertical-align: middle;color:black;\">{0}</span>", 
+    					p);
+			}
+
+    	});
+		columnConfigs.add(column);
+		
+	    ColumnModel cm = new ColumnModel(columnConfigs);
+	    
+	    store = new ListStore<Buddy>(); 
+	    
+	    Grid<Buddy> buddyGrid = new Grid<Buddy>(store, cm);  
+	    buddyGrid.setStyleName("roster_list");
+	    buddyGrid.setStyleAttribute("borderTop", "none");  
+	    buddyGrid.setBorders(false);  
+	    buddyGrid.setAutoExpandColumn("nick");
+	    buddyGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+	    buddyGrid.setHideHeaders(true);
+	    buddyGrid.setWidth("100%");
+	    buddyGrid.setHeight("100%");
+	    
+	    buddyGrid.getView().setForceFit(true);  
+	    
+	    buddyGrid.addListener(Events.RowDoubleClick , new Listener<GridEvent>()
+	    {
+	    	public void handleEvent(GridEvent be) 
+	    	{
+	    		List<Buddy> buddys =  store.getModels();
+	    		Buddy buddy = buddys.get(be.rowIndex);
+	    		String jid = buddy.jid();
+	    	}
+	    });
+	    return buddyGrid;
 	}
 	
 	private InputContainer createBottomWidget()
@@ -293,14 +482,6 @@ public class RoomChatWindow extends Window
 			 else if(!selfv.fullName().isEmpty())
 				 nick = selfv.fullName();
 		 }
-		 //addMessage(nick,inputText,true);
-		 /*
-		 XmppMessage msg = JabberApp.instance().getSession().getFactory().createMessage();
-		 msg.setType("groupchat");
-		 msg.setTo(jid);
-		 msg.setBody(inputText);
-		 JabberApp.instance().getSession().send(msg);
-		 */
 		 room.sendMessage(inputText);
 		 setInputText("");
 		 input.focus();
