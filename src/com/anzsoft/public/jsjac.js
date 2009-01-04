@@ -73,7 +73,7 @@ function binb2b64(binarray)
 {var tab="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";var str="";for(var i=0;i<binarray.length*4;i+=3)
 {var triplet=(((binarray[i>>2]>>8*(3-i%4))&0xFF)<<16)|(((binarray[i+1>>2]>>8*(3-(i+1)%4))&0xFF)<<8)|((binarray[i+2>>2]>>8*(3-(i+2)%4))&0xFF);for(var j=0;j<4;j++)
 {if(i*8+j*6>binarray.length*32)str+=b64pad;else str+=tab.charAt((triplet>>6*(3-j))&0x3F);}}
-return str;}
+return str.replace(/AAA\=(\=*?)$/,'$1');}
 function hex_md5(s){return binl2hex(core_md5(str2binl(s),s.length*chrsz));}
 function b64_md5(s){return binl2b64(core_md5(str2binl(s),s.length*chrsz));}
 function str_md5(s){return binl2str(core_md5(str2binl(s),s.length*chrsz));}
@@ -207,7 +207,7 @@ return;if(typeof(console)=='undefined')
 return;try{switch(level){case 0:console.warn(msg);break;case 1:console.error(msg);break;case 2:console.info(msg);break;case 4:console.debug(msg);break;default:console.log(msg);break;}}catch(e){try{console.log(msg)}catch(e){}}};this.setLevel=function(level){this.level=level;return this;};this.getLevel=function(){return this.level;};}
 function JSJaCCookie(name,value,secs)
 {if(window==this)
-return new JSJaCCookie(name,value,secs);this.name=name;this.value=value;this.expires=secs;this.write=function(){if(this.secs){var date=new Date();date.setTime(date.getTime()+(this.secs*1000));var expires="; expires="+date.toGMTString();}else
+return new JSJaCCookie(name,value,secs);this.name=name;this.value=value;this.secs=secs;this.write=function(){if(this.secs){var date=new Date();date.setTime(date.getTime()+(this.secs*1000));var expires="; expires="+date.toGMTString();}else
 var expires="";document.cookie=this.getName()+"="+this.getValue()+expires+"; path=/";};this.erase=function(){var c=new JSJaCCookie(this.getName(),"",-1);c.write();};this.getName=function(){return this.name;};this.setName=function(name){this.name=name;return this;};this.getValue=function(){return this.value;};this.setValue=function(value){this.value=value;return this;};}
 JSJaCCookie.read=function(name){var nameEQ=name+"=";var ca=document.cookie.split(';');for(var i=0;i<ca.length;i++){var c=ca[i];while(c.charAt(0)==' ')c=c.substring(1,c.length);if(c.indexOf(nameEQ)==0)return new JSJaCCookie(name,c.substring(nameEQ.length,c.length));}
 throw new JSJaCCookieException("Cookie not found");};JSJaCCookie.get=function(name){return JSJaCCookie.read(name).getValue();};JSJaCCookie.remove=function(name){JSJaCCookie.read(name).erase();};function JSJaCCookieException(msg){this.message=msg;this.name="CookieException";}
@@ -246,9 +246,11 @@ this.getNode().setAttribute('xml:lang',xmllang);return this;};JSJaCPacket.protot
 name=name||'*';ns=ns||'*';if(this.getNode().getElementsByTagNameNS){return this.getNode().getElementsByTagNameNS(ns,name).item(0);}
 var nodes=this.getNode().getElementsByTagName(name);if(ns!='*'){for(var i=0;i<nodes.length;i++){if(nodes.item(i).namespaceURI==ns){return nodes.item(i);}}}else{return nodes.item(0);}
 return null;}
-JSJaCPacket.prototype.getChildVal=function(name,ns){var node=this.getChild(name,ns);if(node&&node.firstChild){return node.firstChild.nodeValue;}else{return'';}};JSJaCPacket.prototype.clone=function(){return JSJaCPacket.wrapNode(this.getNode());};JSJaCPacket.prototype.isError=function(){return(this.getType()=='error');};JSJaCPacket.prototype.errorReply=function(stanza_error){var rPacket=this.clone();rPacket.setTo(this.getFrom());rPacket.setFrom();rPacket.setType('error');rPacket.appendNode('error',{code:stanza_error.code,type:stanza_error.type},[[stanza_error.cond]]);return rPacket;};JSJaCPacket.prototype.xml=function(){if(this.getDoc().xml)
-return this.getDoc().xml;var xml=(new XMLSerializer()).serializeToString(this.getNode());if(typeof(xml)!='undefined')
-return xml;return(new XMLSerializer()).serializeToString(this.doc);};JSJaCPacket.prototype._getAttribute=function(attr){return this.getNode().getAttribute(attr);};JSJaCPacket.prototype._replaceNode=function(aNode){for(var i=0;i<aNode.attributes.length;i++)
+JSJaCPacket.prototype.getChildVal=function(name,ns){var node=this.getChild(name,ns);var ret='';if(node&&node.hasChildNodes()){for(var i=0;i<node.childNodes.length;i++)
+if(node.childNodes.item(i).nodeValue)
+ret+=node.childNodes.item(i).nodeValue;}
+return ret;};JSJaCPacket.prototype.clone=function(){return JSJaCPacket.wrapNode(this.getNode());};JSJaCPacket.prototype.isError=function(){return(this.getType()=='error');};JSJaCPacket.prototype.errorReply=function(stanza_error){var rPacket=this.clone();rPacket.setTo(this.getFrom());rPacket.setFrom();rPacket.setType('error');rPacket.appendNode('error',{code:stanza_error.code,type:stanza_error.type},[[stanza_error.cond]]);return rPacket;};JSJaCPacket.prototype.xml=typeof XMLSerializer!='undefined'?function(){var r=(new XMLSerializer()).serializeToString(this.getNode());if(typeof(r)=='undefined')
+r=(new XMLSerializer()).serializeToString(this.doc);return r}:function(){return this.getDoc().xml};JSJaCPacket.prototype._getAttribute=function(attr){return this.getNode().getAttribute(attr);};JSJaCPacket.prototype._replaceNode=function(aNode){for(var i=0;i<aNode.attributes.length;i++)
 if(aNode.attributes.item(i).nodeName!='xmlns')
 this.getNode().setAttribute(aNode.attributes.item(i).nodeName,aNode.attributes.item(i).nodeValue);for(var i=0;i<aNode.childNodes.length;i++)
 if(this.getDoc().importNode)
@@ -420,13 +422,13 @@ return i;return-1;};JSJaCHttpBindingConnection.prototype._getHold=function(){ret
 reqstr=this._last_requests[this._rid].xml;else{var xml='';while(this._pQueue.length){var curNode=this._pQueue[0];xml+=curNode;this._pQueue=this._pQueue.slice(1,this._pQueue.length);}
 reqstr="<body rid='"+this._rid+"' sid='"+this._sid+"' xmlns='http://jabber.org/protocol/httpbind' ";if(JSJAC_HAVEKEYS){reqstr+="key='"+this._keys.getKey()+"' ";if(this._keys.lastKey()){this._keys=new JSJaCKeys(hex_sha1,this.oDbg);reqstr+="newkey='"+this._keys.getKey()+"' ";}}
 if(last)
-reqstr+="type='terminate' ";else if(this._reinit){if(JSJACHBC_USE_BOSH_VER)
-reqstr+="xmpp:restart='true' ";this._reinit=false;}
+reqstr+="type='terminate'";else if(this._reinit){if(JSJACHBC_USE_BOSH_VER)
+reqstr+="xmpp:restart='true' xmlns:xmpp='urn:xmpp:xbosh'";this._reinit=false;}
 if(xml!=''||raw!=''){reqstr+=">"+raw+xml+"</body>";}else{reqstr+="/>";}
 this._last_requests[this._rid]=new Object();this._last_requests[this._rid].xml=reqstr;this._last_rid=this._rid;for(var i in this._last_requests)
 if(this._last_requests.hasOwnProperty(i)&&i<this._rid-this._hold)
 delete(this._last_requests[i]);}
-return reqstr;};JSJaCHttpBindingConnection.prototype._getInitialRequestString=function(){var reqstr="<body hold='"+this._hold+"' xmlns='http://jabber.org/protocol/httpbind' to='"+this.authhost+"' wait='"+this._wait+"' rid='"+this._rid+"'";if(this.host||this.port)
+return reqstr;};JSJaCHttpBindingConnection.prototype._getInitialRequestString=function(){var reqstr="<body content='text/xml; charset=utf-8' hold='"+this._hold+"' xmlns='http://jabber.org/protocol/httpbind' to='"+this.authhost+"' wait='"+this._wait+"' rid='"+this._rid+"'";if(this.host||this.port)
 reqstr+=" route='xmpp:"+this.host+":"+this.port+"'";if(this.secure)
 reqstr+=" secure='"+this.secure+"'";if(JSJAC_HAVEKEYS){this._keys=new JSJaCKeys(hex_sha1,this.oDbg);key=this._keys.getKey();reqstr+=" newkey='"+key+"'";}
 if(this._xmllang)
