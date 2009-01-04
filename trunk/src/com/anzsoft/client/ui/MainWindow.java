@@ -39,6 +39,7 @@ public class MainWindow extends Window
 	private UserIndicator indicator;
 	protected StatusButtonBar buttonBar;
 	
+	private Button roomButton;
 	private Button logoutButton;
 	private Button addUserButton;
 	public MainWindow(XmppSession session)
@@ -84,6 +85,17 @@ public class MainWindow extends Window
 			}
 		});
 		
+		roomButton = new Button(JabberApp.getConstants().Room());
+		roomButton.addSelectionListener(new SelectionListener<ButtonEvent>()
+		{
+			public void componentSelected(ButtonEvent ce) 
+			{
+				JabberApp.instance().showRooms();
+			}
+		}
+		);
+		
+		buttonBar.add(roomButton);
 		buttonBar.add(addUserButton);
 		buttonBar.add(logoutButton);
 	}

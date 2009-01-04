@@ -24,6 +24,11 @@ public class ServiceDiscovery
 	public class Service extends BaseModelData 
 	{
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		public Service() 
 		{
 
@@ -173,6 +178,35 @@ public class ServiceDiscovery
 					Element identity = (Element) el.getElementsByTagName("identity").item(0);
 					services.add(new Service(jid,identity.getAttribute("name")));
 					break;
+				}
+			}
+		}
+		return services;
+	}
+	
+	public List<Service> getMUCRoomServices()
+	{
+		List<Service> services = new ArrayList<Service>();
+		for(String jid:disco.keySet())
+		{
+			Element el = disco.get(jid);
+			if(el == null)
+				continue;
+			Node item = el.getElementsByTagName("identity").item(0);
+			if(item == null)
+				continue;
+			Element elItem = (Element)item;
+			if(elItem.getAttribute("category").equals("conference")&&elItem.getAttribute("type").equals("text"))
+			{
+				NodeList features = el.getElementsByTagName("feature");
+				for(int index=0;index<features.getLength();index++)
+				{
+					Element feature = (Element) features.item(index);
+					if(feature.getAttribute("var").equals("http://jabber.org/protocol/muc"))
+					{
+						services.add(new Service(jid,elItem.getAttribute("name")));
+						break;
+					}
 				}
 			}
 		}

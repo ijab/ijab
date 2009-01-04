@@ -100,4 +100,6 @@ public interface iJabConstants extends Constants
 	String Failed();
 	String VCard_Success_Prompt();
 	String VCard_Failed_Prompt();
+	String Chat_Rooms();
+	String Room();
 }

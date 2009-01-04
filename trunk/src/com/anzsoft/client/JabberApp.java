@@ -57,6 +57,7 @@ import com.anzsoft.client.ui.ChatWindow;
 import com.anzsoft.client.ui.InfoDialog;
 import com.anzsoft.client.ui.LoginDialog;
 import com.anzsoft.client.ui.MainWindow;
+import com.anzsoft.client.ui.RoomDialog;
 import com.anzsoft.client.ui.RosterPanel;
 import com.anzsoft.client.ui.UserAddDialog;
 import com.anzsoft.client.ui.UserSearchDialog;
@@ -102,14 +103,13 @@ public class JabberApp
 	private UserAddDialog userAddDlg = null;
 	private UserSearchDialog searchDialog = null;
 	private InfoDialog infoDlg = null;
+	private RoomDialog roomDlg = null;
 	
 	static iJabConstants constants = null;
 	private RosterPanel rosterPanel = null;
 	private MainWindow mainWindow = null;
 	private Map<String,XmppContact> contactDatas = null; 
 	private HashMap<String,XmppContactStatus> statusMap = new HashMap<String,XmppContactStatus>();
-	private XmppVCard vcard = null;
-	
 	public static JabberApp instance()
 	{
 		if(_instance == null)
@@ -150,25 +150,8 @@ public class JabberApp
 	public void doLogin()
 	{		
 		XmppVCardFactory.instance().clear();
-		vcard = null;
 		ChatWindow.clear();
-		if(userAddDlg != null)
-		{
-			userAddDlg.close();
-			userAddDlg = null;
-		}
-		if(mainWindow != null)
-		{
-			mainWindow.close();
-			mainWindow = null;
-		}
-		
-		if(debugWindow != null)
-		{
-			debugWindow.close();
-			debugWindow = null;
-		}
-	    
+		cleanDialog();	    
 	    if(loginDlg == null)
 	    	loginDlg = new LoginDialog();
 	    loginDlg.show();
@@ -377,6 +360,8 @@ public class JabberApp
 		{
 			public void onMessageReceived(XmppMessage message) 
 			{
+				if(!message.getType().equals("chat"))
+					return;
 				ChatWindow window = ChatWindow.openChat(message.getFromID());
 				
 				SoundController soundController = new SoundController();
@@ -434,7 +419,6 @@ public class JabberApp
 				{
 					public void onVCard(XmppID jid, XmppVCard in_vcard) 
 					{
-						vcard = in_vcard;
 					}
 					
 				});
@@ -612,6 +596,18 @@ public class JabberApp
 	
 	private void cleanDialog()
 	{
+		if(mainWindow != null)
+		{
+			mainWindow.close();
+			mainWindow = null;
+		}
+		
+		if(debugWindow != null)
+		{
+			debugWindow.close();
+			debugWindow = null;
+		}
+		
 		if(userAddDlg != null)
 		{
 			userAddDlg.close();
@@ -629,6 +625,12 @@ public class JabberApp
 			infoDlg.close();
 			infoDlg = null;
 		}
+		
+		if(roomDlg != null)
+		{
+			roomDlg.close();
+			roomDlg = null;
+		}
 	}
 	
 	public XmppID getJid()
@@ -636,9 +638,32 @@ public class JabberApp
 		return XmppID.parseId(session.getUser().getID());
 	}
 	
+	public String getNick()
+	{
+		String nick = getJid().getNode();
+		XmppVCard v = getSelfVCard();
+		if(v != null)
+		{
+			if(v.nickName()!=null&&!v.nickName().isEmpty())
+				nick = v.nickName();
+			else if(v.fullName()!=null&&!v.fullName().isEmpty())
+				nick = v.fullName();
+		}
+		return nick;
+	}
+	
 	public XmppVCard getSelfVCard()
 	{
 		return XmppVCardFactory.instance().get(getJid(), null);
 		//return vcard;
+	}
+	
+	public void showRooms()
+	{
+		if(roomDlg == null)
+			roomDlg = new RoomDialog(disco);
+		
+		roomDlg.show();
+		WindowManager.get().bringToFront(roomDlg);
 	}
 }
