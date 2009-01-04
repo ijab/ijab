@@ -350,6 +350,7 @@ public class RosterPanel extends ContentPanel
     	field.setWidth("100%");
     	StoreFilter<ContactData> filter = new StoreFilter<ContactData>()
     	{
+			@SuppressWarnings("unchecked")
 			public boolean select(Store store, ContactData parent,
 					ContactData item, String property) 
 			{
@@ -405,35 +406,33 @@ public class RosterPanel extends ContentPanel
     	store = new GroupingStore<ContactData> ();    	
     	store.setSortField(STATUSVALUE);
     	ColumnConfig avatarColumnConfig = new ColumnConfig(IMG,"Image",44);
-    	avatarColumnConfig.setRenderer(new GridCellRenderer()
+    	avatarColumnConfig.setRenderer(new GridCellRenderer<ContactData>()
     	{
-
-    		public String render(ModelData model, String property,
-    				ColumnData config, int rowIndex, int colIndex,
-    				ListStore store) 
-    		{
-    			Params p = new Params();
+			public String render(ContactData model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<ContactData> store) 
+			{
+				Params p = new Params();
     			String img = model.get(IMG);
     			p.add(img);
     			return Format.substitute("<img src=\"{0}\" style=\"width=32px;height:32px;cursor: pointer;\" />",p);
-    			//return Format.substitute("<div style=\"direction: ltr; background-repeat: no-repeat; background-position: left center; background-image: url({0}); background-color: transparent; cursor: pointer; visibility: visible; width:32px;height:32px;\"/>", p);
-    		}
+			}
 
     	});
     	avatarColumnConfig.setFixed(true);
 
     	  
     	ColumnConfig statusImgColumnConfig = new ColumnConfig(STATUSIMG,"Status", 20);
-    	statusImgColumnConfig.setRenderer(new GridCellRenderer()
+    	statusImgColumnConfig.setRenderer(new GridCellRenderer<ContactData>()
     	{
-    		public String render(ModelData model, String property,
-    				ColumnData config, int rowIndex, int colIndex,
-    				ListStore store)
-    		{
-    			Params p = new Params();
+			public String render(ContactData model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<ContactData> store) 
+			{
+				Params p = new Params();
     			p.add(model.get(STATUSIMG));
     			return Format.substitute("{0}", p);
-    		}
+			}
 
     	});
     	statusImgColumnConfig.setFixed(true);
@@ -442,18 +441,18 @@ public class RosterPanel extends ContentPanel
     	groupColumnConfig.setHidden(true);   
 
     	ColumnConfig aliasColumnConfig = new ColumnConfig(ALIAS,"Alias",32);
-    	aliasColumnConfig.setRenderer(new GridCellRenderer()
+    	aliasColumnConfig.setRenderer(new GridCellRenderer<ContactData>()
     	{
-    		public String render(ModelData model, String property,
-    				ColumnData config, int rowIndex, int colIndex,
-    				ListStore store) 
-    		{
-    			Params p = new Params();
+			public String render(ContactData model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<ContactData> store) 
+			{
+				Params p = new Params();
     			p.add(model.get(ALIAS));
     			p.add(model.get(STATUSTEXT));
     			return Format.substitute("<span style=\"vertical-align: middle;color:black;\">{0}</span><br/><span style=\"vertical-align: middle;color:gray;\">{1}</span>", 
     					p);
-    		}
+			}
 
     	});
     	  
