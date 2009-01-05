@@ -226,7 +226,7 @@ public class RoomDialog extends Dialog
 		});
 		
 		bar.add(joinButton);
-		bar.add(createButton);
+		//bar.add(createButton);
 		bar.add(closeButton);
 		setButtonBar(bar);
 	}

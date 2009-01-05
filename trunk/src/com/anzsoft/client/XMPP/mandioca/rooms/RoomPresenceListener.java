@@ -22,7 +22,8 @@
 
 package com.anzsoft.client.XMPP.mandioca.rooms;
 
-public interface RoomPresenceListener {
+public interface RoomPresenceListener
+{
     void onUserLeft(String alias);
-    void onUserEntered(String alias, String status);
+    void onUserEntered(String alias, MUCItem item);
 }

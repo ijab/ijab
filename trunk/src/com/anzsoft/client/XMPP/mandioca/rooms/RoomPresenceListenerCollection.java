@@ -26,20 +26,21 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
-class RoomPresenceListenerCollection extends ArrayList {
-    public void fireUserLeaves(final String alias) {
-	for(Iterator it = iterator(); it.hasNext(); ) {
-	    ((RoomPresenceListener) it.next()).onUserLeft(alias);
+class RoomPresenceListenerCollection extends ArrayList 
+{
+	public void fireUserLeaves(final String alias) 
+	{
+		for(Iterator it = iterator(); it.hasNext(); ) 
+		{
+			((RoomPresenceListener) it.next()).onUserLeft(alias);
+		}
 	}
-    }
 
-    public void fireUserEntered(final String alias, final String status) {
-	for(Iterator it = iterator(); it.hasNext(); ) {
-	    ((RoomPresenceListener) it.next()).onUserEntered(alias, status);
+	public void fireUserEntered(final String alias, MUCItem item) 
+	{
+		for(Iterator it = iterator(); it.hasNext(); ) 
+		{
+			((RoomPresenceListener) it.next()).onUserEntered(alias, item);
+		}
 	}
-    }
-
-
-
-
 }
