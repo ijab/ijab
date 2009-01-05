@@ -30,59 +30,79 @@ import com.anzsoft.client.XMPP.mandioca.XmppChat;
 import com.anzsoft.client.XMPP.mandioca.XmppIdPacketListener;
 import com.anzsoft.client.XMPP.mandioca.XmppSession;
 import com.anzsoft.client.XMPP.mandioca.XmppUser;
+import com.anzsoft.client.XMPP.mandioca.rooms.MUCItem.Affiliation;
+import com.anzsoft.client.XMPP.mandioca.rooms.MUCItem.Role;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Node;
 
 public class XmppRoom extends XmppChat {
-    private final String roomId;
-    private String userId;
-    private final String sessionRoomId;
-    private final RoomPresenceListenerCollection presenceListeners;
+	private final String roomId;
+	private String userId;
+	private final String sessionRoomId;
+	private final RoomPresenceListenerCollection presenceListeners;
 
-    public XmppRoom(final XmppSession session, final String roomName, final String host, final String nick) {
-	this(session, XmppID.render(roomName, host, nick), XmppID.render(roomName, host, null));
+	public XmppRoom(final XmppSession session, final String roomName, final String host, final String nick) 
+	{
+		this(session, XmppID.render(roomName, host, nick), XmppID.render(roomName, host, null));
+	}
+
+	XmppRoom(final XmppSession session, final String userInRoomId, final String roomId) 
+	{
+		super(session, userInRoomId, new XmppIdPacketListener(roomId));
+		this.roomId = roomId;
+		this.sessionRoomId = userInRoomId;
+		this.presenceListeners = new RoomPresenceListenerCollection();
+
+		addPresenceListener(new XmppPresenceListener() 
+		{
+			public void onPresenceReceived(final XmppPresence presence) 
+			{
+				String alias = presence.getFromID().getResource();
+				String type = presence.getType();
+				if (type != null && type.equals(XmppPresence.TYPE_UNAVAILABLE)) 
+				{
+					presenceListeners.fireUserLeaves(alias);
+				} 
+				else
+				{
+					Element pNode = (Element) presence.getNode();
+					Element item = pNode.getElementsByTagName("item").getItem(0);
+					MUCItem mucItem = new MUCItem(Role.NoRole,Affiliation.NoAffiliation);
+					if(item!=null)
+						mucItem.fromXml(item);					
+					presenceListeners.fireUserEntered(alias,mucItem);
+				}
+			}
+
+			public void onPresenceSent(final XmppPresence presence) 
+			{
+			}
+		});
     }
 
-    XmppRoom(final XmppSession session, final String userInRoomId, final String roomId) {
-	super(session, userInRoomId, new XmppIdPacketListener(roomId));
-	this.roomId = roomId;
-	this.sessionRoomId = userInRoomId;
-	this.presenceListeners = new RoomPresenceListenerCollection();
 
-	addPresenceListener(new XmppPresenceListener() {
-	    public void onPresenceReceived(final XmppPresence presence) {
-		String alias = presence.getFromID().getResource();
-		String type = presence.getType();
-		if (type != null && type.equals(XmppPresence.TYPE_UNAVAILABLE)) {
-		    presenceListeners.fireUserLeaves(alias);
-		} else {
-		    presenceListeners.fireUserEntered(alias, presence.getStatus());
-		}
-	    }
-
-	    public void onPresenceSent(final XmppPresence presence) {
-	    }
-	});
+    public boolean isRoom() 
+    {
+    	return true;
     }
 
-
-    public boolean isRoom() {
-	return true;
-    }
-
-    private XmppPresence createRoomPresence() {
-	XmppPresence presence = session.getFactory().createRoomPresence();
-	presence.setFrom(userId);
-	presence.setTo(sessionRoomId);
-	return presence;
+    private XmppPresence createRoomPresence() 
+    {
+    	XmppPresence presence = session.getFactory().createRoomPresence();
+    	presence.setFrom(userId);
+    	presence.setTo(sessionRoomId);
+    	return presence;
     }
 
     /**
      * @param user
      * @see http://www.xmpp.org/extensions/xep-0045.html#enter
      */
-    public void join(final XmppUser user) {
-	userId = user.getID();
-	XmppPresence presence = createRoomPresence();
-	session.send(presence);
+    public void join(final XmppUser user) 
+    {
+    	userId = user.getID();
+    	XmppPresence presence = createRoomPresence();
+    	session.send(presence);
     }
 
 
@@ -90,23 +110,26 @@ public class XmppRoom extends XmppChat {
      *
      * @see http://www.xmpp.org/extensions/xep-0045.html#exit
      */
-    public void logout() {
-	XmppPresence presence = createRoomPresence();
-	presence.setType(XmppPresence.TYPE_UNAVAILABLE);
-	session.send(presence);
+    public void logout() 
+    {
+    	XmppPresence presence = createRoomPresence();
+    	presence.setType(XmppPresence.TYPE_UNAVAILABLE);
+    	session.send(presence);
     }
 
-    public void addRoomPresenceListener(final RoomPresenceListener listener) {
-	presenceListeners.add(listener);
+    public void addRoomPresenceListener(final RoomPresenceListener listener) 
+    {
+    	presenceListeners.add(listener);
     }
 
-    protected XmppMessage createMessage(final String body) {
-	XmppMessage message = session.getFactory().createMessage();
-	message.setFrom(session.getUser().getID());
-	message.setTo(roomId);
-	message.setBody(body);
-	message.setType(XmppMessage.TYPE_MULTI);
-	return message;
+    protected XmppMessage createMessage(final String body) 
+    {
+    	XmppMessage message = session.getFactory().createMessage();
+    	message.setFrom(session.getUser().getID());
+    	message.setTo(roomId);
+    	message.setBody(body);
+    	message.setType(XmppMessage.TYPE_MULTI);
+    	return message;
     }
 
 

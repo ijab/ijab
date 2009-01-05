@@ -12,6 +12,7 @@ import com.anzsoft.client.XMPP.XmppMessageListener;
 import com.anzsoft.client.XMPP.mandioca.VCardListener;
 import com.anzsoft.client.XMPP.mandioca.XmppVCard;
 import com.anzsoft.client.XMPP.mandioca.XmppVCardFactory;
+import com.anzsoft.client.XMPP.mandioca.rooms.MUCItem;
 import com.anzsoft.client.XMPP.mandioca.rooms.RoomPresenceListener;
 import com.anzsoft.client.XMPP.mandioca.rooms.XmppRoom;
 import com.anzsoft.client.utils.ChatTextFormatter;
@@ -34,7 +35,9 @@ import com.extjs.gxt.ui.client.util.Format;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.util.Params;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -215,6 +218,7 @@ public class RoomChatWindow extends Window
 	
 	//for roster
 	ListStore<Buddy> store;
+	private boolean asked = false;
 	
 	private RoomChatWindow(final String roomJid,final XmppRoom room)
 	{
@@ -286,7 +290,7 @@ public class RoomChatWindow extends Window
 			}
 			
 		});
-
+		
 		this.room.addMessageListener(new XmppMessageListener()
 		{
 			public void onMessageReceived(XmppMessage message) 
@@ -297,6 +301,12 @@ public class RoomChatWindow extends Window
 				sound.play();
 				
 				addMessage(message.getFromID().getResource(), message.getBody(),false);
+				
+				RoomChatWindow win = RoomChatWindow.get(jid);
+				if(!win.isVisible())
+					win.setVisible(true);
+				
+				WindowManager.get().bringToFront(win);
 			}
 			public void onMessageSent(XmppMessage message) 
 			{
@@ -305,19 +315,48 @@ public class RoomChatWindow extends Window
 		
 		this.room.addRoomPresenceListener(new RoomPresenceListener()
 		{
-			public void onUserEntered(String alias, String status) 
-			{
-				Buddy buddy = new Buddy();
-				buddy.setNick(alias);
-				buddy.setStatus(status);		
-				store.add(buddy);
-			}
-
 			public void onUserLeft(String alias) 
 			{
 				Buddy buddy = store.findModel("nick",alias);
 				if(buddy != null)
 					store.remove(buddy);
+			}
+
+			public void onUserEntered(String alias, MUCItem item) 
+			{
+				Buddy buddy = new Buddy();
+				buddy.setNick(alias);
+				buddy.setJid(item.jid().toString());
+				//buddy.setStatus(status);		
+				store.add(buddy);
+			}
+			
+		});
+		
+		this.addListener(Events.Hide, new Listener<WindowEvent>()
+		{
+			public void handleEvent(WindowEvent be) 
+			{
+				if(asked)
+					return;
+				MessageBox.confirm("Confirm","Do you want to quit this room when you close the window?", new Listener<WindowEvent>()
+				{
+					public void handleEvent(WindowEvent be) 
+					{
+						Dialog dialog = (Dialog) be.component;
+						Button btn = dialog.getButtonPressed();
+						if(btn.getItemId().equals(Dialog.YES))
+						{
+							room.logout();
+							setCloseAction(CloseAction.CLOSE);
+							unRegisterChatWindow(jid);
+							close();
+						}
+
+					}
+
+				});
+				asked = true;
 			}
 			
 		});
@@ -387,6 +426,8 @@ public class RoomChatWindow extends Window
 	    		List<Buddy> buddys =  store.getModels();
 	    		Buddy buddy = buddys.get(be.rowIndex);
 	    		String jid = buddy.jid();
+	    		if(jid != null&&!jid.isEmpty())
+	    			ChatWindow.openChat(XmppID.parseId(jid));
 	    	}
 	    });
 	    return buddyGrid;

@@ -57,6 +57,7 @@ import com.anzsoft.client.ui.ChatWindow;
 import com.anzsoft.client.ui.InfoDialog;
 import com.anzsoft.client.ui.LoginDialog;
 import com.anzsoft.client.ui.MainWindow;
+import com.anzsoft.client.ui.RoomChatWindow;
 import com.anzsoft.client.ui.RoomDialog;
 import com.anzsoft.client.ui.RosterPanel;
 import com.anzsoft.client.ui.UserAddDialog;
@@ -631,6 +632,8 @@ public class JabberApp
 			roomDlg.close();
 			roomDlg = null;
 		}
+		
+		RoomChatWindow.clear();
 	}
 	
 	public XmppID getJid()
