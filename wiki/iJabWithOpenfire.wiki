@@ -3,8 +3,7 @@
 
 This tutorial is based on this [http://chromus.kajigger.com/blog/2007/03/22/making-jwchat-work-with-openfire/ blog] and it will guide you through the installation of the web-based Jabber client iJab 0.1.0 using a pre-generated package.
 
-At the end, you will have iJab running using ejabberd's internal HTTP Bind support.  
-
+At the end, you will have iJab running using openfire's internal HTTP Bind support.  
 
 ==1.Configure openfire==
 
@@ -81,3 +80,11 @@ Restart your web server so changes take effect:
 apache2ctl restart
 
 And now you can open your browser in the URL (maybe similar to http://www.mycompany.com/iJab/).
+
+== Something About JsJac with openfire http-bind ==
+   If it couldn't work, please search on openfire's forum.
+
+   1. Christian Beckmann always got a "UserName or password error!" after install iJab. Using debug it found the problem was javax.security.sasl.SaslException: DIGEST-MD5: digest response format violation. Incompatible charset value: utf-8��  ".
+     http://www.igniterealtime.org/community/message/156357#185787 gives the info how to fix this problem.
+
+   Welcome to share your experience configuring iJab.
