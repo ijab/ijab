@@ -1,4 +1,4 @@
-#labels iJab,jabber,xmpp,ejabberd,webim,install
+#labels iJab,jabber,xmpp,ejabberd,webim,install,web,chat,messenger,im,instantmessenger
 #How to install iJab using ejabberd
 
 This tutorial is based on [http://www.ejabberd.im/jwchat-apache guide file] on [http://www.ejabberd.im ejabberd] and it will guide you through the installation of the web-based Jabber client iJab 0.1.0 using a pre-generated package.
