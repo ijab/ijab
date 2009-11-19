@@ -4,8 +4,8 @@
 iJab is written by Javascript.
 
 1.Dependency:
-  * Extjs & Ext GWT
-  * GWT
+  * Extjs & Ext GWT 1.1.x recomended [http://extjs.com/deploy/gxt-1.1.4.zip 1.1.4] (not compatible with 1.2 or later)
+  * GWT 1.5.x
   * GWT voices
   * JsJac
 
