@@ -1,5 +1,5 @@
 #labels iJab,build,webim,xmpp,jabber,instantmessaging
-#How to build iJab from source.
+#How to build iJab 0.1.7 from source.
 
 iJab is written by Javascript.
 
