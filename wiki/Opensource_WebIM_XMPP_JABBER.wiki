@@ -1,4 +1,4 @@
-#Opensource Ajax web IM for XMPP/Jabber.
+Opensource Ajax web IM for XMPP/Jabber.
 
 = Introduction =
 
