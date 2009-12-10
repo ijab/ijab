@@ -1,0 +1,8 @@
+#summary One-sentence summary of this page.
+#labels ajax,facebook,xmpp,web-im,jabber,im,instant-messenger
+
+= Introduction =
+
+    iJabBar is a facebook style web chat bar base on XMPP/Jabber protocol which could be integrated into your website for letting your user chatting while online.
+
+    You could learn more about iJabBar from [http://www.ijab.im/ here].
