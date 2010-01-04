@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta name="generator" content="anzsoft ijab">
+	<meta name="keywords" content="xmpp, jabber,web jabber,ijab,web im">
+	<meta name="description" content="xmpp, jabber,web jabber,ijab,web im,用户不需下载客户端就可以通过网页进行jabber聊天">
+	
+	<!-- <link type="text/css" rel="stylesheet" href="ijabbar.css"> -->
+	<!-- <link type="text/css" rel="stylesheet" href="http://www.extjs.com/examples/gxt/css/gxt-all.css"> -->
+	
+	<meta name="gwt:property" content="locale=en">
+
+    <!--                                           -->
+    <!-- Any title is fine                         -->
+    <!--                                           -->
+    <title>iJab Test page</title>
+    
+    <!--                                           -->
+    <!-- This script loads your compiled module.   -->
+    <!-- If you add any GWT meta tags, they must   -->
+    <!-- be added before this line.                -->
+    <!--                                           -->
+    <script type="text/javascript" language="javascript" src="ijabbar/ijabbar.nocache.js"></script>
+    
+    <script>
+    <!-- ijab_httpbind,ijab_port,ijab_host,ijab_domain,ijab_servertype,ijab_debug -->
+	var ijab_httpbind = "http://samespace.anzsoft.com:5280/http-bind/";
+	<!-- var ijab_httpbind = "http://91.143.80.43:5280/http-bind/";-->
+	var ijab_port = 5222;
+	<!-- var ijab_domain = "nurstudenten.de";-->
+	var ijab_domain = "anzsoft.com";
+	var ijab_servertype = "EJabberd";<!-- EJabberd,Openfire,Others-->
+	var ijab_rostermode = "All";<!-- All,Online,None -->
+	var ijab_debug = false;
+	var ijab_enableLoginBox = true;
+	var ijab_autoLogin = true;
+	var ijab_auto_user = "username";
+	var ijab_auto_password = "SID";
+	var ijab_anonymous_prefix = "";<!-- empty or some username prefix -->
+	var ijab_reconnect_count = 3;
+    </script>
+    
+    <script type="text/javascript">
+    function testHandler()
+    {
+    	var handler = 
+    	{
+    		onBeforeLogin:function()
+    		{
+    			alert("On Before login");
+    		},
+    		onEndLogin:function()
+    		{
+    			alert("On end login");
+    		},
+    		onError:function(message)
+    		{
+    			iJab.login('test','test');
+    		},
+    		onLogout:function()
+    		{
+    			alert("On logout");
+    		}
+    	};
+    	iJab.addHandler(handler);
+    }
+    </script>
+  </head>
+
+  <!--                                           -->
+  <!-- The body can have arbitrary html, or      -->
+  <!-- you can leave the body empty if you want  -->
+  <!-- to create a completely dynamic UI.        -->
+  <!--                                           -->
+  <body>
+   	<h1>iJabBar test page</h1>
+   	<input type="button" value="test" onclick="iJab.login('imdev','imdev631');" >
+   	<input type="button" value="test talkTo" onclick="iJab.talkTo('zhongfanglin');" >
+   	<input type="button" value="Add Handler" onclick="testHandler();" >
+   	<input type="button" value="logout" onclick="iJab.logout();" >
+
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+   	<h1>iJabBar test page</h1>
+  </body>
+</html>
