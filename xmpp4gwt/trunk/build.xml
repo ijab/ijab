@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="xmpp4gwt" default="dist">
+	<description>
+            anzsoft-xmpp4gwt
+    </description>
+
+	<property file="build.properties" />
+
+	<path id="classpath">
+		<fileset dir="./lib">
+			<include name="**/*.jar" />
+		</fileset>
+
+		<pathelement location="${src.dir}">
+		</pathelement>
+	</path>
+
+	<!-- ================================= 
+          target: clean              
+         ================================= -->
+	<target name="clean" description="--> clean">
+		<delete dir="${classes.build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+
+	<target name="compile">
+		<description>Compile source</description>
+		<mkdir dir="${classes.build.dir}" />
+		<javac srcdir="${src.dir}" destdir="${classes.build.dir}" classpathref="classpath" debug="on" />
+	</target>
+
+	<!-- ================================= 
+          target: dist              
+         ================================= -->
+	<target name="dist" depends="compile" description="--> Jabber/XMPP Client">
+		<mkdir dir="${dist.dir}" />
+		<tstamp>
+			<format property="build.time" pattern="dd-MM-yyyy hh:mm:ss.S" timezone="GMT" />
+		</tstamp>
+		<jar destfile="${dist.dir}/xmpp4gwt-${ver}.jar">
+			<fileset dir="${classes.build.dir}">
+				<include name="**/*.*" />
+			</fileset>
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Built-Date" value="${build.time}" />
+				<attribute name="Package" value="anzsoft.xmpp4gwt" />
+				<attribute name="Specification-Title" value="RFC-3920, RFC-3921, XEPS" />
+				<attribute name="Implementation-Title" value="anzsoft-xmpp4gwt" />
+				<attribute name="Implementation-Version" value="${ver}" />
+				<attribute name="Implementation-Vendor" value="anzsoft.com" />
+			</manifest>
+			<fileset dir="${src.dir}">
+				<include name="**/*.*" />
+			</fileset>
+		</jar>
+	</target>
+
+
+</project>
