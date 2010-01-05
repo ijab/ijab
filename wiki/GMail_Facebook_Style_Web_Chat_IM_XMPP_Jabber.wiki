@@ -1,8 +1,60 @@
-#labels ajax,facebook,xmpp,web-im,jabber,im,instant-messenger
+#labels ajax,facebook,xmpp,web-im,jabber,im,instant-messenger,Featured
 GMail/Facebook style web chat bar for XMPP/Jabber.
 
 = Introduction =
 
     iJabBar is a facebook style web chat bar base on XMPP/Jabber protocol which could be integrated into your website for letting your user chatting while online.
 
-    You could learn more about iJabBar from [http://www.ijab.im/ here].
+    You could learn more about iJabBar from [http://www.ijab.im/ here] (This site would be open later).
+
+= How To =
+
+   1. You should install a XMPP server with HTTP-BIND feature.
+
+   2. Deploy iJabBar to your web site.
+
+   3. Add the following codes to your pages for integrating iJabBar into your website.
+
+    <script type="text/javascript" language="javascript" src="http://example.com/ijabbar/ijabbar.nocache.js"></script>
+    
+    <script>
+    <!-- ijab_httpbind,ijab_port,ijab_host,ijab_domain,ijab_servertype,ijab_debug -->
+	var ijab_httpbind = "http://xmpp.example.com:5280/http-bind/";
+	var ijab_port = 5222;
+	var ijab_domain = "example.com";
+	var ijab_servertype = "EJabberd";<!-- EJabberd,Openfire,Others-->
+	var ijab_rostermode = "Online";<!-- All,Online,None -->
+	var ijab_debug = false;
+	var ijab_enableLoginBox = true;
+	var ijab_autoLogin = false;
+	var ijab_auto_user = "username";         <!-- for SSO login with your website -->    
+	var ijab_auto_password = "auth_token";   <!-- for SSO login with your website -->
+	var ijab_anonymous_prefix = "";<!-- empty or some username prefix -->
+	var ijab_reconnect_count = 3;
+    </script>
+    
+    <script type="text/javascript">
+    function testHandler()
+    {
+    	var handler = 
+    	{
+    		onBeforeLogin:function()
+    		{
+    			alert("On Before login");
+    		},
+    		onEndLogin:function()
+    		{
+    			alert("On end login");
+    		},
+    		onError:function(message)
+    		{
+    			iJab.login('imdev','imdev631');
+    		},
+    		onLogout:function()
+    		{
+    			alert("On logout");
+    		}
+    	};
+    	iJab.addHandler(handler);
+    }
+    </script>
