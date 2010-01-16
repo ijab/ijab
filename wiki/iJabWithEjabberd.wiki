@@ -16,6 +16,15 @@ Make sure you have options similar to those on your ejabberd.cfg:
   ...
   {5280, ejabberd_http,    [http_bind]}
 }}}
+
+Note:don't forget add mod_httpd_bind into modules section.
+{{{
+  {modules,
+    ...
+    {mod_http_bind, []}.
+   }
+}}}
+
 With these options the URL for http-bind in your server will be:
 http://jabber.mycompany.com:5280/http-bind/
 
