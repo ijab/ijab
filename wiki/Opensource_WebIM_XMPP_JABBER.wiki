@@ -19,3 +19,9 @@ HTTP Binding thereby allowing near realtime messaging.
 Proxying
 
 Because of JavaScript's same origin policy a JavaScript program (such as iJab) can only communicate with the hosting webserver. All traffic must therefore be proxied by the webserver to the XMPP server. A webserver such as Apache can be configured to act as a reverse proxy. An alternative to this relaying of traffic is to use a minimal webserver in the XMPP server such as the module included in ejabberd.
+
+
+= Download =
+You could download iJab from here or other websites.
+
+<p><a href="http://www.downloadroute.com/"><img src="http://www.downloadroute.com/images/downloadroute120x60.png" border="0" width="120" height="60" alt="Downloads from DownloadRoute.com"></a></p>
