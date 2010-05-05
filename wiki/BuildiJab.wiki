@@ -1,4 +1,16 @@
 #labels iJab,build,webim,xmpp,jabber,instantmessaging
+# How to build iJab v1.0
+  iJab v1.0 and newer just depends on XMPP4GWT and GWT.
+  From this version, iJab would try to merge stand-alone(0.1.7 like) and bar(iJabBar like)modes into one application.
+
+  To be continued...
+
+# How to build iJabBar
+  iJabBar still based on GXT 2.1.x(Ext for GWT lib) and XMPP4GWT.
+
+  To be continued...  
+
+
 #How to build iJab 0.1.7 from source.
 
 iJab is written by Javascript.
