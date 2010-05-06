@@ -1,4 +1,13 @@
 #labels iJab,webim,jabber,xmpp,openfire,install
+
+### Important #####
+
+Some of the below contents is only for iJab v0.1.7 and older.
+
+How to configure rewrite rules works for iJab v 1.0 and later.
+
+######################
+
 #How to install iJab with Openfire.
 
 This tutorial is based on this [http://chromus.kajigger.com/blog/2007/03/22/making-jwchat-work-with-openfire/ blog] and it will guide you through the installation of the web-based Jabber client iJab 0.1.0 using a pre-generated package.
